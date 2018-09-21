@@ -1,3 +1,35 @@
-#plugintitle {
-    color: red;
+#plugintitle{
+    color: yellow;
+}
+
+.nav-evasion {
+    display: grid;    
+    grid-template-columns: repeat(4,25%);
+    width: 100%;
+    height: auto;
+}
+
+.nav-evasion img{
+        width: 100%;
+        margin: auto;
+    }
+
+#nav-icon{
+    /*opacity:$opt;*/ 
+    padding: 10px;         
+    text-align: center; 
+    border-radius: 10px;
+}
+
+/* aplica somente a partir de 480px em landscape */
+@media screen and (min-width: 480px) {
+   .nav-evasion {
+    display: grid;    
+    grid-template-columns: repeat(4,25%);    
+    }
+    
+    .nav-evasion img{
+        width: auto;
+        margin: auto;
+    }
 }
