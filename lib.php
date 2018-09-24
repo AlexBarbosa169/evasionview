@@ -34,6 +34,12 @@ function print_navigation_evasionview($params,$url ,$OUTPUT) {
 //        Incluir aqui o que se espera quando o usuário entra no link principal do plugin
                     print_icon_evasionview('home');                    
                     echo $OUTPUT->action_link(new moodle_url($url,array('group'=>3)),"Navegar para Grupo de Usuários");
+                    $groups = get_group_grades_evasionview($params['id']);
+//                    var_dump($groups);
+                    echo "Grupo com notas Boas". count($groups['good'])."<br>";
+                    echo "Grupo com notas Médias". count($groups['far'])."<br>";
+                    echo "Grupo com notas Ruins". count($groups['poor'])."<br>";
+                    echo "Grupo sem notas notas". count($groups['null'])."<br>";                    
                 }            
             }
         }    
@@ -53,4 +59,66 @@ function print_icon_evasionview($param) {
            </div>";   
     }    
     echo "</div>";
+}
+
+function get_group_grades_evasionview($courseid) {    
+    $usersCourse = search_users($courseid);    
+    $groups = null;
+    $good_group = array();
+    $far_group = array();
+    $poor_group = array();
+    $null_group = array();
+       
+    if($usersCourse){
+        echo "<br>Tem Alunos<br>";
+        foreach ($usersCourse as $key => $user) {                                                 
+            $grade = grade_progress($courseid, $user->id);                    
+            $nota = null;
+            foreach ($grade as $value2) {                                
+                $nota = $value2->sum;
+            }    
+            if($nota != null){
+                if($nota < 5){
+                    $poor_group[] = $user;
+                }else{
+                    if($nota >=5 && $nota < 7){
+                        $far_group[] = $user;
+                    }else{
+                        if($nota >= 7){
+                            $good_group[] = $user;
+                        }
+                    }
+                }
+//                echo "Nome: $user->firstname valor: $nota<br>";
+            }else{
+//                echo "Nome: $user->firstname valor: - <br>";            
+                $null_group[] = $user;            
+            }                        
+        }    
+        
+//        echo "Grupo com notas Boas". count($good_group);
+//        echo "Grupo com notas Médias". count($far_group);
+//        echo "Grupo com notas Ruins". count($poor_group);
+//        echo "Grupo sem notas notas". count($null_group);
+        $groups = array('good'=>$good_group,'far'=>$far_group,'poor'=>$poor_group, 'null'=>$null_group);
+    }else{
+        echo "Não Tem Alunos";
+    }
+    return $groups;
+}
+
+function grade_progress($courseid,$userid) {
+    global $DB;
+    $grade_progress = $DB->get_records_sql("select sum((gg.finalgrade :: bigint) * gi.aggregationcoef2)
+                                    from public.mdl_grade_items as gi 
+                                    join public.mdl_grade_grades as gg on
+                                    gi.id = gg.itemid 
+                                    join public.mdl_user as us
+                                    on gg.userid = us.id
+                                    join public.mdl_course as c on
+                                    gi.courseid = c.id
+                                    where gg.userid = us.id and c.id = $courseid 
+                                    and gi.itemtype != 'course' and us.id = $userid");       
+
+    return $grade_progress;
 }
