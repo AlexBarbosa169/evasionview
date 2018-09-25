@@ -36,10 +36,11 @@ function print_navigation_evasionview($params,$url ,$OUTPUT) {
                     echo $OUTPUT->action_link(new moodle_url($url,array('group'=>3)),"Navegar para Grupo de Usuários");
                     $groups = get_group_grades_evasionview($params['id']);
 //                    var_dump($groups);
-                    echo "Grupo com notas Boas". count($groups['good'])."<br>";
-                    echo "Grupo com notas Médias". count($groups['far'])."<br>";
-                    echo "Grupo com notas Ruins". count($groups['poor'])."<br>";
-                    echo "Grupo sem notas notas". count($groups['null'])."<br>";                    
+                    $good_group = count($groups['good']);
+                    $far_group = count($groups['far']);
+                    $poor_group = count($groups['far']);
+                    $null_group = count($groups['null']);
+                    grafchartjs($good_group, $far_group, $poor_group, $null_group);
                 }            
             }
         }    
@@ -107,6 +108,61 @@ function get_group_grades_evasionview($courseid) {
     return $groups;
 }
 
+function grafchartjs($good,$far,$poor,$null){
+    echo "<canvas id='myChartPie' width='400' height='400'></canvas>";
+    
+    echo "<script src='js/Chart.min.js'></script>";
+    
+    echo "<script>
+        var ctx = document.getElementById('myChartPie').getContext('2d');
+        var myChart = new Chart(ctx, {
+            type: 'pie',
+            data: {
+                labels: ['Good', 'Far', 'Poor', 'Null'],
+                datasets: [{
+                    label: 'Percentual de contribuição',
+                    data: [$good, $far, $poor, $null ],
+                    backgroundColor: [
+                        'rgba(0, 232, 0, 1)',
+                        'rgba(255, 235 , 59, 1)',
+                        'rgba(200, 0, 0, 1)',
+                        'rgba(128, 128, 128, 1)'                        
+                    ],
+                    borderColor: [
+                        'rgba(255, 255, 255,1)',
+                        'rgba(255, 255, 255, 1)',
+                        'rgba(255, 255, 255, 1)',
+                        'rgba(255, 255, 255, 1)'                        
+                    ],
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                events: ['click','mousemove','touchmove']                                      
+            }
+        });                
+        
+        document.getElementById('myChartPie').onclick = function(evt){                        
+            var activeElements = myChart.getElementsAtEvent(evt);            
+                
+        if(activeElements.length > 0)
+            {
+            var clickedElementindex = activeElements[0]['_index'];      
+            
+            var label = myChart.data.labels[clickedElementindex];            
+//            var value = myChart.data.datasets[0].data[clickedElementindex];      
+//            document.getElementById('next').style.setProperty('visibility','visible');
+                                    var parsedUrl = new URL(window.location.href);
+                                    console.log(parsedUrl);                                    
+                                    parsedUrl.searchParams.set('group',label);                                    
+                                    window.location.href = parsedUrl;
+                console.log(label);
+            }
+        };
+        </script>";
+    
+}
+
 function grade_progress($courseid,$userid) {
     global $DB;
     $grade_progress = $DB->get_records_sql("select sum((gg.finalgrade :: bigint) * gi.aggregationcoef2)
@@ -122,3 +178,6 @@ function grade_progress($courseid,$userid) {
 
     return $grade_progress;
 }
+
+
+
