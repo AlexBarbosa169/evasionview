@@ -15,10 +15,12 @@ function funcao_teste(){
 }
 
 // função para impressão do bread crumb e as páginas referentes a cada solicitação do usuário
-function print_navigation_evasionview($params,$url ,$OUTPUT) {
+function print_navigation_evasionview($params,$url) {        
+        global $OUTPUT;
 //        Incluir aqui o que se espera quando o usuário requer a visualização do grupo de risco dos usuários
         if($params['group']){            
             print_icon_evasionview('group');
+            print_group_view($params['group'], $params['id']);
             echo $OUTPUT->action_link(new moodle_url($url, array('userinfo'=>3)), "Navegar para usuário");
         }else{
 //        Incluir aqui o que se espera quando o usuário requer a visualização das informações sobre um usuário em específico
@@ -33,14 +35,34 @@ function print_navigation_evasionview($params,$url ,$OUTPUT) {
                 }else{
 //        Incluir aqui o que se espera quando o usuário entra no link principal do plugin
                     print_icon_evasionview('home');                    
-                    echo $OUTPUT->action_link(new moodle_url($url,array('group'=>3)),"Navegar para Grupo de Usuários");
+//                    echo $OUTPUT->action_link(new moodle_url($url,array('group'=>3)),"Navegar para Grupo de Usuários");
+                    if(search_users($params['id'])){
                     $groups = get_group_grades_evasionview($params['id']);
-//                    var_dump($groups);
+                    
                     $good_group = count($groups['good']);
-                    $far_group = count($groups['far']);
-                    $poor_group = count($groups['far']);
+                    $fair_group = count($groups['fair']);
+                    $poor_group = count($groups['poor']);
                     $null_group = count($groups['null']);
-                    grafchartjs($good_group, $far_group, $poor_group, $null_group);
+                    
+                    echo "<div id='container_index' >"; 
+                    echo "<div id='piechart' >"; 
+                    grafchartjs($good_group, $fair_group, $poor_group, $null_group);                    
+                    echo "</div>";                     
+                    echo "<div class='pie_info1'>";                    
+                    echo "<div class='group-subtitle'><h5 id='good-group'>Good Group</h5><p>Grupo de estudantes com desempenho maior que 70%.</p></div>";
+                    echo "<div class='group-subtitle'><h5 id='fair-group'>Fair Group</h5><p>Grupo de estudantes com desempenho entre que 50 e 70%.</p></div>";
+                    echo "<div class='group-subtitle'><h5 id='poor-group'>Poor Group</h5><p>Grupo de estudantes com desempenho inferior a 50%.</p></div>";
+                    echo "<div class='group-subtitle'><h5 id='null-group'>Null Group</h5><p>Grupo de estudantes sem lançamento de notas.</p></div>";                    
+                    echo "</div>";                     
+                    echo "</div>"; 
+                    }else{
+                     echo "<div style='text-align:center'>
+                                <img id='no-users-img' src='img/logoplugin.png' alt='logoAvaMoodle'/>
+                                <div class='alert'>
+                                Não há usuários cadastrados para esse curso
+                                </div>                
+                           </div>";   
+                    }                    
                 }            
             }
         }    
@@ -62,16 +84,15 @@ function print_icon_evasionview($param) {
     echo "</div>";
 }
 
-function get_group_grades_evasionview($courseid) {    
+function get_group_grades_evasionview($courseid) {        
     $usersCourse = search_users($courseid);    
     $groups = null;
     $good_group = array();
-    $far_group = array();
+    $fair_group = array();
     $poor_group = array();
     $null_group = array();
        
-    if($usersCourse){
-        echo "<br>Tem Alunos<br>";
+    if($usersCourse){        
         foreach ($usersCourse as $key => $user) {                                                 
             $grade = grade_progress($courseid, $user->id);                    
             $nota = null;
@@ -83,7 +104,7 @@ function get_group_grades_evasionview($courseid) {
                     $poor_group[] = $user;
                 }else{
                     if($nota >=5 && $nota < 7){
-                        $far_group[] = $user;
+                        $fair_group[] = $user;
                     }else{
                         if($nota >= 7){
                             $good_group[] = $user;
@@ -98,17 +119,17 @@ function get_group_grades_evasionview($courseid) {
         }    
         
 //        echo "Grupo com notas Boas". count($good_group);
-//        echo "Grupo com notas Médias". count($far_group);
+//        echo "Grupo com notas Médias". count($fair_group);
 //        echo "Grupo com notas Ruins". count($poor_group);
 //        echo "Grupo sem notas notas". count($null_group);
-        $groups = array('good'=>$good_group,'far'=>$far_group,'poor'=>$poor_group, 'null'=>$null_group);
+        $groups = array('good'=>$good_group,'fair'=>$fair_group,'poor'=>$poor_group, 'null'=>$null_group);
     }else{
         echo "Não Tem Alunos";
     }
     return $groups;
 }
 
-function grafchartjs($good,$far,$poor,$null){
+function grafchartjs($good,$fair,$poor,$null){
     echo "<canvas id='myChartPie' width='400' height='400'></canvas>";
     
     echo "<script src='js/Chart.min.js'></script>";
@@ -118,10 +139,10 @@ function grafchartjs($good,$far,$poor,$null){
         var myChart = new Chart(ctx, {
             type: 'pie',
             data: {
-                labels: ['Good', 'Far', 'Poor', 'Null'],
+                labels: ['Good', 'Fair', 'Poor', 'Null'],
                 datasets: [{
                     label: 'Percentual de contribuição',
-                    data: [$good, $far, $poor, $null ],
+                    data: [$good, $fair, $poor, $null ],
                     backgroundColor: [
                         'rgba(0, 232, 0, 1)',
                         'rgba(255, 235 , 59, 1)',
@@ -179,5 +200,28 @@ function grade_progress($courseid,$userid) {
     return $grade_progress;
 }
 
-
-
+function print_group_view($group, $courseid) {    
+    $groups = get_group_grades_evasionview($courseid);
+//                    var_dump($groups);
+    switch ($group) {
+                case 'Good':                    
+                    $group = $groups['good'];
+                    var_dump($group);
+                break;
+                case 'Fair':
+                    $group = $groups['fair'];
+                    var_dump($group);
+                break;
+                case 'Poor':
+                    $group = $groups['poor'];
+                    var_dump($group);
+                break;
+                case 'Null':
+                    $group = $groups['null'];
+                    var_dump($group);
+                break;
+                default:
+                    echo "<h1>Nada para ser mostrado!</h1>";
+                break;
+            }
+}
