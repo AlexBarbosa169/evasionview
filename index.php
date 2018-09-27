@@ -61,8 +61,7 @@ $page = $PAGE->url;
 echo $OUTPUT->header();
 
 print_navigation_evasionview($params,$page ,$OUTPUT);
-var_dump($params);
-search_user($grouprequest);
+search_user($params);
 
 //
 echo "<div id='plugintitle'><h1>". get_string('hello','coursereport_evasionview')."</div>";

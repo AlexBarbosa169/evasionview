@@ -179,10 +179,18 @@ function grade_progress($courseid,$userid) {
     return $grade_progress;
 }
 
-function search_user($selectedGroup){
-    var_dump($selectedGroup);
+function search_user($params){
+    $groups = get_group_grades_evasionview($params['id']);
+//    $users_filtrado = array_filter($groups, function($user) use($valor_filtrado){
+//                    if(strpos($user->firstname, $valor_filtrado) === 0){
+//                        return $user;
+//                    }
+//                    //return $user->firstname === 'User2';
+//                }
+    var_dump($groups);
     
 }
+
 
 
 
