@@ -62,6 +62,9 @@ echo $OUTPUT->header();
 
 print_navigation_evasionview($params,$page ,$OUTPUT);
 search_user($params);
+$filtrados = search_user($params);
+echo 'Tou no index';
+var_dump($filtrados);
 
 //
 echo "<div id='plugintitle'><h1>". get_string('hello','coursereport_evasionview')."</div>";

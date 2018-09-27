@@ -181,13 +181,19 @@ function grade_progress($courseid,$userid) {
 
 function search_user($params){
     $groups = get_group_grades_evasionview($params['id']);
-//    $users_filtrado = array_filter($groups, function($user) use($valor_filtrado){
-//                    if(strpos($user->firstname, $valor_filtrado) === 0){
-//                        return $user;
-//                    }
-//                    //return $user->firstname === 'User2';
-//                }
-    var_dump($groups);
+    $selectedGroup = $groups['good'];
+    var_dump($selectedGroup);
+    $valor_filtrado = 'Use';
+    $users_filtrado = array_filter($selectedGroup, function($user) use($valor_filtrado){
+                    if(strpos($user->firstname, $valor_filtrado) === 0){
+                        return $user;
+                    }
+                    //return $user->firstname === 'User2';
+                });
+                echo 'Filtrei aqui embaixo';
+                var_dump($users_filtrado);
+                return $users_filtrado;
+   // var_dump($groups);
     
 }
 
