@@ -179,5 +179,10 @@ function grade_progress($courseid,$userid) {
     return $grade_progress;
 }
 
+function search_user($selectedGroup){
+    var_dump($selectedGroup);
+    
+}
+
 
 
