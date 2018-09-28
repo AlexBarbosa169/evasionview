@@ -60,13 +60,13 @@ $page = $PAGE->url;
 // INSERÇÃO ...
 echo $OUTPUT->header();
 
-print_navigation_evasionview($params,$page ,$OUTPUT);
+print_navigation_evasionview($params,$page);
 
 //
-echo "<div id='plugintitle'><h1>". get_string('hello','coursereport_evasionview')."</div>";
+//echo "<div id='plugintitle'><h1>". get_string('hello','coursereport_evasionview')."</div>";
 
 //
-echo "<button name='evento' value='teste' onclick = clicou(this)>Teste Javascript</button>";
+//echo "<button name='evento' value='teste' onclick = clicou(this)>Teste Javascript</button>";
 
 //Teste de impressão
 //echo $OUTPUT->login_info();
