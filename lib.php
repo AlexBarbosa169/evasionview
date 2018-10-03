@@ -20,13 +20,15 @@ function print_navigation_evasionview($params,$url) {
 //        Incluir aqui o que se espera quando o usuário requer a visualização do grupo de risco dos usuários
         if($params['group']){            
             print_icon_evasionview('group');
-            print_group_view($params['group'], $params['id']);
-            echo $OUTPUT->action_link(new moodle_url($url, array('userinfo'=>3)), "Navegar para usuário");
+            print_group_view($params['group'], $params['id']);            
         }else{
 //        Incluir aqui o que se espera quando o usuário requer a visualização das informações sobre um usuário em específico
             if($params['userinfo']){
             print_icon_evasionview('userinfo');  
-            echo $OUTPUT->action_link(new moodle_url($url, array('usersend'=>3)), "Navegar para enviar mensagem");            
+//            inserir visualização para o usuário            
+            $grade_user = get_grade_user($params['id'], $params['userinfo']);
+            print_user($grade_user, $params['userinfo']);
+//            echo $OUTPUT->action_link(new moodle_url($url, array('usersend'=>3)), "Navegar para enviar mensagem");            
             }else{
 //        Incluir aqui o que se espera quando o usuário requer notificar um usuário selecionado no grupo de risco
                 if($params['usersend']){
@@ -201,27 +203,165 @@ function grade_progress($courseid,$userid) {
 }
 
 function print_group_view($group, $courseid) {    
+    global $OUTPUT;
     $groups = get_group_grades_evasionview($courseid);
-//                    var_dump($groups);
-    switch ($group) {
+    
+    if($group != null){
+        switch ($group) {
                 case 'Good':                    
-                    $group = $groups['good'];
-                    var_dump($group);
+                    $group = $groups['good'];                                        
                 break;
                 case 'Fair':
-                    $group = $groups['fair'];
-                    var_dump($group);
+                    $group = $groups['fair'];                                        
                 break;
                 case 'Poor':
-                    $group = $groups['poor'];
-                    var_dump($group);
+                    $group = $groups['poor'];                                        
                 break;
                 case 'Null':
-                    $group = $groups['null'];
-                    var_dump($group);
+                    $group = $groups['null'];                                                            
                 break;
                 default:
                     echo "<h1>Nada para ser mostrado!</h1>";
                 break;
             }
+            
+            foreach ($group as $user) {                        
+                        $progresses = grade_progress($courseid, $user->id);
+                        foreach ($progresses as $user_progress){                                             
+                            $progress = $user_progress->sum;
+                        }
+                        echo "<div style='overflow: scroll; max-height: 415px;'>";
+                        for($i=0;$i<4;$i++){
+                            print_simple_user($courseid, $user->id, $user->firstname, $user->lastname, $progress);     
+                        }                        
+                        echo "</div";
+                    }
+    }else{
+        echo "<h1>Nada para ser mostrado!</h1>";
+    }
+    
+}
+
+function get_grade_user($courseid, $userid){
+//    var_dump($user);
+    
+    global $DB;
+    $grade_user = $DB->get_records_sql(
+            "select gi.itemname as atividade,
+                (gi.aggregationcoef2 * 100) :: numeric(10,2)as contAtividade,
+                gi.grademin :: numeric(10,2)as notaMinima, 
+                gi.grademax :: numeric(10,2) as notaMaxima, 
+                gg.finalgrade :: numeric(10,2) as notaObtida,
+                ((gg.finalgrade ::numeric(10,2) * gi.aggregationcoef2)*10):: numeric(10,2) as contribuicao
+                from public.mdl_grade_items as gi 
+                join public.mdl_grade_grades as gg on
+                gi.id = gg.itemid 
+                join public.mdl_user as us
+                on gg.userid = us.id
+                join public.mdl_course as c on
+                gi.courseid = c.id
+                where gg.userid = us.id and c.id = $courseid 
+                and gi.itemtype != 'course' and us.id = $userid"
+            );
+    
+            return $grade_user;
+}
+
+function print_simple_user($courseid, $userid, $userfirstname, $userlastname, $userprogress) {
+    global $OUTPUT;
+                            echo "<div id='grid' style='display: grid;
+                                grid-template-columns: auto;
+                                grid-template-rows: auto auto auto;
+                                padding: 10px;
+                                border: solid 1px #9E9E9E;
+                                background-color: whitesmoke;                                
+                                margin: 2px;                                
+                                '>
+                                <div id='user-info-title'><strong>User id: $userid</strong></div>
+                                <div id='contents' style='display: grid;
+                                grid-template-columns: auto auto auto auto;
+                                grid-template-rows: auto auto auto;'>                                
+                                <div id='user-info'>First Name</div>
+                                <div id='user-info-return'>$userfirstname</div>
+                                <div id='user-info'>Last Name</div>
+                                <div id='user-info-return'>$userlastname</div>
+                                <div id='user-info'>Progresso</div>
+                                <div id='user-info-return'>$userprogress</div>
+                                <div id='user-info'>Link</div>
+                                <div id='user-info-return'>
+                                ";
+                                echo $OUTPUT->action_link(new moodle_url($url, array('id'=>$courseid,'userinfo'=>$userid)), "Detalhamento das notas");
+                                echo "</div>";
+                                echo "</div>";    
+                            echo "</div>";         
+}
+
+function print_user($grade_user, $userid) {
+    global $DB;
+    global $OUTPUT;
+    
+    $options = array('size'=>200);     
+    
+    $user = $DB->get_record("user", array("id"=>$userid, 'deleted'=>0), '*', MUST_EXIST);             
+//    var_dump($user);
+    echo "<div style='display: grid; grid-template-columns: 1fr 4fr;
+                                grid-template-rows: auto;'>";
+    echo "<div id='image'>";
+        echo $OUTPUT->user_picture($user,$options);
+    echo "</div>";    
+    
+    echo "<div style='display: grid; grid-template-columns: 1fr;
+                                grid-template-rows: 1fr 1fr;'>";    
+            echo "<div>";
+            echo "<table>
+            <thead>
+                <tr>
+                    <th>Id</th>
+                    <th>Nome</th>
+                    <th>Sobrenome</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>$user->id</td>
+                    <td>$user->firstname</td>
+                    <td>$user->lastname</td>
+                </tr>
+                <tr>
+                    <td></td>
+                    <td></td>
+                </tr>
+            </tbody>
+        </table>";
+            echo "</div>";
+            echo "<table>"
+                    . "<thead>"
+                    . "<th>Atividade</th>"
+                    . "<th>Nota Miníma da Atividade</th>"
+                    . "<th>Nota Máxima da Atividade</th>"
+                    . "<th>Nota Máxima Obtida</th>"
+                    . "<th>Contribuição para o curso</th>"
+                    . "</thead><tbody>";			
+            $array_atividades = array();
+            $array_atividades_course = array();
+//            var_dump($array_atividades);
+            foreach ($grade_user as $grade) {                
+//                var_dump($grade);
+                if(!$grade->notaobtida)
+                    $notaobtida = 0;
+                else
+                    $notaobtida = $grade->notaobtida;
+                
+                echo "<tr>";
+                echo "<td>$grade->atividade</td>";
+                $array_atividades[$grade->atividade] = $grade->contribuicao;                
+                $array_atividades_course[$grade->atividade] = $grade->contatividade;
+                echo "<td>$grade->notaminima</td>";
+                echo "<td>$grade->notamaxima</td>";
+                echo "<td>$notaobtida</td>";
+                echo "<td>$grade->contribuicao%</td>";
+                echo "</tr>";
+            }
+            echo "</tbody></table>";                        
+            echo "</div>";
 }

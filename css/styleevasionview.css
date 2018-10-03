@@ -58,6 +58,10 @@ div#piechart{
     .group-subtitle #null-group{
         color: #808080;
     }
+    
+    div #grid div .user-info-title {
+        background-color: gainsboro;
+    }        
 
 /* aplica somente a partir de 480px em landscape */
 @media screen and (min-width: 480px) {
@@ -112,6 +116,6 @@ div#piechart{
         width: auto;
         vertical-align: middle;
         border: 0;
-    }
+    }        
 }
 
