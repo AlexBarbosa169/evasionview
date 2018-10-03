@@ -19,12 +19,14 @@ function print_navigation_evasionview($params,$url) {
         global $OUTPUT;
 //        Incluir aqui o que se espera quando o usuário requer a visualização do grupo de risco dos usuários
         if($params['group']){            
-            print_icon_evasionview('group');
+//            print_icon_evasionview('group');
+            echo "<div><h3>Group Risk</h3></div>";
             print_group_view($params['group'], $params['id']);            
         }else{
 //        Incluir aqui o que se espera quando o usuário requer a visualização das informações sobre um usuário em específico
             if($params['userinfo']){
-            print_icon_evasionview('userinfo');  
+//            print_icon_evasionview('userinfo');  
+            echo "<div><h3>User Info</h3></div>";
 //            inserir visualização para o usuário            
             $grade_user = get_grade_user($params['id'], $params['userinfo']);
             print_user($grade_user, $params['userinfo']);
@@ -32,11 +34,13 @@ function print_navigation_evasionview($params,$url) {
             }else{
 //        Incluir aqui o que se espera quando o usuário requer notificar um usuário selecionado no grupo de risco
                 if($params['usersend']){
-                print_icon_evasionview('usersend');                
+//                print_icon_evasionview('usersend');                
+                    echo "<div><h3>User Send Message</h3></div>";
                 echo $OUTPUT->action_link(new moodle_url($url),"Navegar para Home");            
                 }else{
 //        Incluir aqui o que se espera quando o usuário entra no link principal do plugin
-                    print_icon_evasionview('home');                    
+//                    print_icon_evasionview('home');                    
+                    echo "<div><h3>Home</h3></div>";
 //                    echo $OUTPUT->action_link(new moodle_url($url,array('group'=>3)),"Navegar para Grupo de Usuários");
                     if(search_users($params['id'])){
                     $groups = get_group_grades_evasionview($params['id']);
@@ -72,7 +76,8 @@ function print_navigation_evasionview($params,$url) {
 
 function print_icon_evasionview($param) {
     $breadcrumb = array('home','group','userinfo','usersend');        
-    echo "<div class='nav-evasion'>";
+
+    echo "<div class='nav-evasion' style='text-align:center'>";
     foreach ($breadcrumb as $key => $value){
         if($param != $value){
             $opacity = "style='opacity:0.1'";
@@ -82,7 +87,7 @@ function print_icon_evasionview($param) {
      echo "<div id='nav-icon' $opacity>
             <img class='bread' src='img/$value.png' alt='global'/>
            </div>";   
-    }    
+    }        
     echo "</div>";
 }
 
@@ -304,16 +309,10 @@ function print_user($grade_user, $userid) {
     
     $user = $DB->get_record("user", array("id"=>$userid, 'deleted'=>0), '*', MUST_EXIST);             
 //    var_dump($user);
-    echo "<div style='display: grid; grid-template-columns: 1fr 4fr;
-                                grid-template-rows: auto;'>";
-    echo "<div id='image'>";
+    echo "<div id='card-user'>";
+    echo "<div id='col-img'>";
         echo $OUTPUT->user_picture($user,$options);
-    echo "</div>";    
-    
-    echo "<div style='display: grid; grid-template-columns: 1fr;
-                                grid-template-rows: 1fr 1fr;'>";    
-            echo "<div>";
-            echo "<table>
+        echo "<table>
             <thead>
                 <tr>
                     <th>Id</th>
@@ -333,7 +332,10 @@ function print_user($grade_user, $userid) {
                 </tr>
             </tbody>
         </table>";
-            echo "</div>";
+    echo "</div>";    
+    
+    echo "<div id='table-user'>";    
+            
             echo "<table>"
                     . "<thead>"
                     . "<th>Atividade</th>"

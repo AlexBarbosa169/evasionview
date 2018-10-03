@@ -1,3 +1,17 @@
+#card-user{
+    grid-template-columns: auto;
+    text-align: center;
+    grid-template-rows: auto auto;
+    background-color: whitesmoke;
+    border: 1px solid #e3e3e3;
+}
+
+#col-img{
+    display: grid;                    
+    grid-template-rows:max-content auto;
+    padding: 10px;
+    }
+
 #container_index {    
     display: contents;
     grid-template-columns: 2fr 1fr;
@@ -117,5 +131,27 @@ div#piechart{
         vertical-align: middle;
         border: 0;
     }        
+    
+    #card-user{
+    display: grid; grid-template-columns: 1fr;
+    grid-template-rows: auto auto;   
+    background-color: whitesmoke;
+    border: 1px solid #e3e3e3;
+    }
+    
+    #card-user img{
+        padding: 10px;        
+    }
+    
+    #col-img{
+    display: grid;                    
+    grid-template-columns:max-content auto;
+    }
+    #table-user{
+            overflow-y: scroll;
+    height: 200px;
+    max-height: 200px;
+    }
+    
 }
 
