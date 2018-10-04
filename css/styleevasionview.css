@@ -1,3 +1,14 @@
+#contents{
+    display: grid;
+    grid-template-columns: auto auto;
+    grid-template-rows: auto auto auto;
+}
+#user-info-title{
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        background-color: lightgray;
+}
+    
 #card-user{
     grid-template-columns: auto;
     text-align: center;
@@ -73,10 +84,24 @@ div#piechart{
         color: #808080;
     }
     
-    div #grid div .user-info-title {
+    div #grid-user-info div .user-info-title {
         background-color: gainsboro;
-    }        
-
+    }   
+    
+    #grid-user-info{
+        display: grid;
+        grid-template-columns: auto;
+        grid-template-rows: auto auto auto;
+        padding: 10px;
+        border: solid 1px #9E9E9E;
+        background-color: whitesmoke;                                
+        margin: 2px;                        
+    }
+    .view-title{
+        text-align: center;
+        background-color: lightgray;
+        border-radius: 8px;
+    }
 /* aplica somente a partir de 480px em landscape */
 @media screen and (min-width: 480px) {
    .nav-evasion {
@@ -145,13 +170,12 @@ div#piechart{
     
     #col-img{
     display: grid;                    
-    grid-template-columns:max-content auto;
+    grid-template-columns:max-content auto auto;
     }
     #table-user{
             overflow-y: scroll;
     height: 200px;
     max-height: 200px;
-    }
-    
+    }        
 }
 

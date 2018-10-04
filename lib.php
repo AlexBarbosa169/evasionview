@@ -20,27 +20,28 @@ function print_navigation_evasionview($params,$url) {
 //        Incluir aqui o que se espera quando o usuário requer a visualização do grupo de risco dos usuários
         if($params['group']){            
 //            print_icon_evasionview('group');
-            echo "<div><h3>Group Risk</h3></div>";
+            echo "<div class='view-title'>
+                              <h3>Group Risk</h3></div>";
             print_group_view($params['group'], $params['id']);            
         }else{
 //        Incluir aqui o que se espera quando o usuário requer a visualização das informações sobre um usuário em específico
             if($params['userinfo']){
 //            print_icon_evasionview('userinfo');  
-            echo "<div><h3>User Info</h3></div>";
+            echo "<div class='view-title'><h3>User Info</h3></div>";
 //            inserir visualização para o usuário            
             $grade_user = get_grade_user($params['id'], $params['userinfo']);
             print_user($grade_user, $params['userinfo']);
-//            echo $OUTPUT->action_link(new moodle_url($url, array('usersend'=>3)), "Navegar para enviar mensagem");            
+//            echo $OUTPUT->action_link(new moodle_url($url, array('usersend'=>$params['userinfo'])), "Navegar para enviar mensagem");            
             }else{
 //        Incluir aqui o que se espera quando o usuário requer notificar um usuário selecionado no grupo de risco
                 if($params['usersend']){
 //                print_icon_evasionview('usersend');                
-                    echo "<div><h3>User Send Message</h3></div>";
-                echo $OUTPUT->action_link(new moodle_url($url),"Navegar para Home");            
+                    echo "<div class='view-title'><h3>User Send Message</h3></div>";
+                    echo $OUTPUT->action_link(new moodle_url($url),"Navegar para Home");            
                 }else{
 //        Incluir aqui o que se espera quando o usuário entra no link principal do plugin
 //                    print_icon_evasionview('home');                    
-                    echo "<div><h3>Home</h3></div>";
+                    echo "<div class='view-title'><h3>Home</h3></div>";
 //                    echo $OUTPUT->action_link(new moodle_url($url,array('group'=>3)),"Navegar para Grupo de Usuários");
                     if(search_users($params['id'])){
                     $groups = get_group_grades_evasionview($params['id']);
@@ -274,24 +275,12 @@ function get_grade_user($courseid, $userid){
 
 function print_simple_user($courseid, $userid, $userfirstname, $userlastname, $userprogress) {
     global $OUTPUT;
-                            echo "<div id='grid' style='display: grid;
-                                grid-template-columns: auto;
-                                grid-template-rows: auto auto auto;
-                                padding: 10px;
-                                border: solid 1px #9E9E9E;
-                                background-color: whitesmoke;                                
-                                margin: 2px;                                
-                                '>
-                                <div id='user-info-title'><strong>User id: $userid</strong></div>
-                                <div id='contents' style='display: grid;
-                                grid-template-columns: auto auto auto auto;
-                                grid-template-rows: auto auto auto;'>                                
-                                <div id='user-info'>First Name</div>
-                                <div id='user-info-return'>$userfirstname</div>
-                                <div id='user-info'>Last Name</div>
-                                <div id='user-info-return'>$userlastname</div>
-                                <div id='user-info'>Progresso</div>
-                                <div id='user-info-return'>$userprogress</div>
+                            echo "<div id='grid-user-info'>
+                                <div id='user-info-title'><strong>User id: $userid</strong>
+                                    <div id='user-info'>First Name: $userfirstname</div></div>
+                                <div id='contents'>                                                                                                
+                                <div id='user-info'>Last Name: $userlastname</div>
+                                <div id='user-info'>Progresso: $userprogress</div>
                                 <div id='user-info'>Link</div>
                                 <div id='user-info-return'>
                                 ";
@@ -317,14 +306,14 @@ function print_user($grade_user, $userid) {
                 <tr>
                     <th>Id</th>
                     <th>Nome</th>
-                    <th>Sobrenome</th>
+                    <th>Sobrenome</th>                    
                 </tr>
             </thead>
             <tbody>
                 <tr>
                     <td>$user->id</td>
                     <td>$user->firstname</td>
-                    <td>$user->lastname</td>
+                    <td>$user->lastname</td>                    
                 </tr>
                 <tr>
                     <td></td>
@@ -332,38 +321,58 @@ function print_user($grade_user, $userid) {
                 </tr>
             </tbody>
         </table>";
-    echo "</div>";    
+        echo "<div>";
+        echo $OUTPUT->action_link(new moodle_url($url, array('id'=>$_GET['id'],'usersend'=>$user->id)), "Mensagem");
+        echo "</div>";
+    echo "</div>";        
     
     echo "<div id='table-user'>";    
             
-            echo "<table>"
-                    . "<thead>"
-                    . "<th>Atividade</th>"
-                    . "<th>Nota Miníma da Atividade</th>"
-                    . "<th>Nota Máxima da Atividade</th>"
-                    . "<th>Nota Máxima Obtida</th>"
-                    . "<th>Contribuição para o curso</th>"
-                    . "</thead><tbody>";			
+//            echo "<table>"
+//                    . "<thead>"
+//                    . "<th>Atividade</th>"
+//                    . "<th>Nota Miníma da Atividade</th>"
+//                    . "<th>Nota Máxima da Atividade</th>"
+//                    . "<th>Nota Máxima Obtida</th>"
+//                    . "<th>Contribuição para o curso</th>"
+//                    . "</thead><tbody>";			
             $array_atividades = array();
             $array_atividades_course = array();
 //            var_dump($array_atividades);
             foreach ($grade_user as $grade) {                
-//                var_dump($grade);
+                                
                 if(!$grade->notaobtida)
                     $notaobtida = 0;
                 else
                     $notaobtida = $grade->notaobtida;
                 
-                echo "<tr>";
-                echo "<td>$grade->atividade</td>";
-                $array_atividades[$grade->atividade] = $grade->contribuicao;                
-                $array_atividades_course[$grade->atividade] = $grade->contatividade;
-                echo "<td>$grade->notaminima</td>";
-                echo "<td>$grade->notamaxima</td>";
-                echo "<td>$notaobtida</td>";
-                echo "<td>$grade->contribuicao%</td>";
-                echo "</tr>";
+//                echo "<tr>";
+//                echo "<td>$grade->atividade</td>";
+//                $array_atividades[$grade->atividade] = $grade->contribuicao;                
+//                $array_atividades_course[$grade->atividade] = $grade->contatividade;
+//                echo "<td>$grade->notaminima</td>";
+//                echo "<td>$grade->notamaxima</td>";
+//                echo "<td>$notaobtida</td>";
+//                echo "<td>$grade->contribuicao%</td>";
+//                echo "</tr>";
+                
+//                Inserção da div com atividades
+                echo "<div style='display: grid; grid-template-rows: auto auto auto; background-color: lightgrey; margin: 4px'>"
+                        . "<div style='margin: 2px;background-color: whitesmoke;' >$grade->atividade</div>"
+                        . "<div style='display: grid; grid-template-columns: auto auto auto auto'>"
+                            . "<div>Nota Minima</div>"
+                            . "<div>Nota Máxima</div>"
+                            . "<div>Nota Obtida</div>"
+                            . "<div>Contribuição para o curso</div>"
+                        . "</div>"                        
+                        ."<div style='display: grid; grid-template-columns: auto auto auto auto'>"
+                            . "<div>$grade->notaminima</div>"
+                            . "<div>$grade->notamaxima</div>"
+                            . "<div>$notaobtida</div>"
+                            . "<div>$grade->contribuicao %</div>"
+                        . "</div>"                        
+                        . "</div>";
             }
-            echo "</tbody></table>";                        
+//            echo "</tbody></table>";                        
             echo "</div>";
 }
