@@ -17,13 +17,11 @@ function funcao_teste(){
 // função para impressão do bread crumb e as páginas referentes a cada solicitação do usuário
 function print_navigation_evasionview($params,$url) {        
         global $OUTPUT;
-        
 //        Incluir aqui o que se espera quando o usuário requer a visualização do grupo de risco dos usuários
         if($params['group']){            
 //            print_icon_evasionview('group');
             echo "<div class='view-title'>
                               <h3>Group Risk</h3></div>";
-            echo "<input type='text' placeholder='Search..'>";
             print_group_view($params['group'], $params['id']);            
         }else{
 //        Incluir aqui o que se espera quando o usuário requer a visualização das informações sobre um usuário em específico
