@@ -1,3 +1,10 @@
+#table-access-user{
+    overflow-y: scroll;
+    height: 200px;
+    max-height: 200px;
+    text-align: left;
+}
+    
 #contents{
     display: grid;
     grid-template-columns: auto auto;
@@ -12,7 +19,7 @@
 #card-user{
     grid-template-columns: auto;
     text-align: center;
-    grid-template-rows: auto auto;
+    grid-template-rows: auto auto auto;
     background-color: whitesmoke;
     border: 1px solid #e3e3e3;
 }
@@ -172,10 +179,18 @@ div#piechart{
     display: grid;                    
     grid-template-columns:max-content auto auto;
     }
+    
     #table-user{
-            overflow-y: scroll;
-    height: 200px;
+    overflow-y: scroll;
+    height: fit-content;
     max-height: 200px;
     }        
+    
+    #table-access-user{
+    overflow-y: scroll;
+    height: 200px;
+    max-height: 200px;
+    text-align: left;
+    }
 }
 

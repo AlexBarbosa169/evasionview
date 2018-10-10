@@ -17,8 +17,9 @@ $courseid = required_param('id', PARAM_INT);
 $grouprequest = optional_param('group', null ,PARAM_TEXT);
 $userinfo = optional_param('userinfo',null ,PARAM_TEXT);
 $usersend = optional_param('usersend',null ,PARAM_TEXT);
+$filter = optional_param('filter',null ,PARAM_TEXT);
 
-$params = array('id'=>$courseid,'group'=>$grouprequest,'userinfo'=>$userinfo,'usersend'=>$usersend);
+$params = array('id'=>$courseid,'group'=>$grouprequest,'userinfo'=>$userinfo,'usersend'=>$usersend, 'filter' => $filter);
 
 
 // VERIFICAÇÃO DO CURSO ATRAVÉS DO PARAMETRO PASSADO VIA URL
