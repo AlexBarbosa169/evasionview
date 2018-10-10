@@ -21,16 +21,25 @@ function print_navigation_evasionview($params,$url) {
         if($params['group']){            
 //            print_icon_evasionview('group');
             echo "<div class='view-title'>
-                              <h3>Group Risk</h3></div>";
+                              <strong><p>Selecione um usuário para detalhar suas informações.</strong></p></div>";
             print_group_view($params['group'], $params['id']);            
         }else{
 //        Incluir aqui o que se espera quando o usuário requer a visualização das informações sobre um usuário em específico
             if($params['userinfo']){
 //            print_icon_evasionview('userinfo');  
-            echo "<div class='view-title'><h3>User Info</h3></div>";
+            echo "<div class='view-title'><strong><p>Detalhamento dos dados de notas, interações e acessos do usuário.</strong></p></div>";
 //            inserir visualização para o usuário            
+//            var_dump($url);            
+            echo $OUTPUT->action_link(new moodle_url($url, array('userinfo'=>$params['userinfo'],'filter'=>'all_times')),"Todo o curso");
+            echo $OUTPUT->action_link(new moodle_url($url, array('userinfo'=>$params['userinfo'],'filter'=>'three_months')),"No ultimo trimestre");
+            echo $OUTPUT->action_link(new moodle_url($url, array('userinfo'=>$params['userinfo'],'filter'=>'month')),"No ultimo mês");
+            echo $OUTPUT->action_link(new moodle_url($url, array('userinfo'=>$params['userinfo'],'filter'=>'week')),"Na última semana");
+            
             $grade_user = get_grade_user($params['id'], $params['userinfo']);
-            print_user($grade_user, $params['userinfo']);
+            $access_user = get_list_access_user($params['id'], $params['userinfo'],$params['filter']);
+            
+//            var_dump($access_user);
+            print_user($grade_user,$access_user,$params['userinfo']);
 //            echo $OUTPUT->action_link(new moodle_url($url, array('usersend'=>$params['userinfo'])), "Navegar para enviar mensagem");            
             }else{
 //        Incluir aqui o que se espera quando o usuário requer notificar um usuário selecionado no grupo de risco
@@ -41,7 +50,7 @@ function print_navigation_evasionview($params,$url) {
                 }else{
 //        Incluir aqui o que se espera quando o usuário entra no link principal do plugin
 //                    print_icon_evasionview('home');                    
-                    echo "<div class='view-title'><h3>Home</h3></div>";
+                    echo "<div class='view-title'><strong><p>Selecione no gráfico para exibir os alunos do grupo de risco.</strong></p></div>";
 //                    echo $OUTPUT->action_link(new moodle_url($url,array('group'=>3)),"Navegar para Grupo de Usuários");
                     if(search_users($params['id'])){
                     $groups = get_group_grades_evasionview($params['id']);
@@ -232,13 +241,14 @@ function print_group_view($group, $courseid) {
             }
             
             foreach ($group as $user) {                        
+                        $access_user = get_access_user($courseid, $user->id,null);
                         $progresses = grade_progress($courseid, $user->id);
                         foreach ($progresses as $user_progress){                                             
                             $progress = $user_progress->sum;
                         }
                         echo "<div style='overflow: scroll; max-height: 415px;'>";
                         for($i=0;$i<4;$i++){
-                            print_simple_user($courseid, $user->id, $user->firstname, $user->lastname, $progress);     
+                            print_simple_user($courseid, $user->id, $user->firstname, $user->lastname, $progress, $access_user);     
                         }                        
                         echo "</div";
                     }
@@ -273,15 +283,19 @@ function get_grade_user($courseid, $userid){
             return $grade_user;
 }
 
-function print_simple_user($courseid, $userid, $userfirstname, $userlastname, $userprogress) {
+function print_simple_user($courseid, $userid, $userfirstname, $userlastname, $userprogress, $useraccess) {
     global $OUTPUT;
+    $access;
+    foreach ($useraccess as $value) {
+        $access = $value->count;
+    }
                             echo "<div id='grid-user-info'>
                                 <div id='user-info-title'><strong>User id: $userid</strong>
                                     <div id='user-info'>First Name: $userfirstname</div></div>
                                 <div id='contents'>                                                                                                
                                 <div id='user-info'>Last Name: $userlastname</div>
                                 <div id='user-info'>Progresso: $userprogress</div>
-                                <div id='user-info'>Link</div>
+                                <div id='user-info'>Acessos durante o curso: $access</div>                                
                                 <div id='user-info-return'>
                                 ";
                                 echo $OUTPUT->action_link(new moodle_url($url, array('id'=>$courseid,'userinfo'=>$userid)), "Detalhamento das notas");
@@ -290,10 +304,10 @@ function print_simple_user($courseid, $userid, $userfirstname, $userlastname, $u
                             echo "</div>";         
 }
 
-function print_user($grade_user, $userid) {
+function print_user($grade_user, $access_user ,$userid) {
     global $DB;
     global $OUTPUT;
-    
+//    var_dump($access_user);
     $options = array('size'=>200);     
     
     $user = $DB->get_record("user", array("id"=>$userid, 'deleted'=>0), '*', MUST_EXIST);             
@@ -325,36 +339,16 @@ function print_user($grade_user, $userid) {
         echo $OUTPUT->action_link(new moodle_url($url, array('id'=>$_GET['id'],'usersend'=>$user->id)), "Mensagem");
         echo "</div>";
     echo "</div>";        
-    
-    echo "<div id='table-user'>";    
-            
-//            echo "<table>"
-//                    . "<thead>"
-//                    . "<th>Atividade</th>"
-//                    . "<th>Nota Miníma da Atividade</th>"
-//                    . "<th>Nota Máxima da Atividade</th>"
-//                    . "<th>Nota Máxima Obtida</th>"
-//                    . "<th>Contribuição para o curso</th>"
-//                    . "</thead><tbody>";			
+    echo "<h3>Notas</h3>";
+    echo "<div id='table-user'>";                
             $array_atividades = array();
             $array_atividades_course = array();
-//            var_dump($array_atividades);
             foreach ($grade_user as $grade) {                
                                 
                 if(!$grade->notaobtida)
                     $notaobtida = 0;
                 else
                     $notaobtida = $grade->notaobtida;
-                
-//                echo "<tr>";
-//                echo "<td>$grade->atividade</td>";
-//                $array_atividades[$grade->atividade] = $grade->contribuicao;                
-//                $array_atividades_course[$grade->atividade] = $grade->contatividade;
-//                echo "<td>$grade->notaminima</td>";
-//                echo "<td>$grade->notamaxima</td>";
-//                echo "<td>$notaobtida</td>";
-//                echo "<td>$grade->contribuicao%</td>";
-//                echo "</tr>";
                 
 //                Inserção da div com atividades
                 echo "<div style='display: grid; grid-template-rows: auto auto auto; background-color: lightgrey; margin: 4px'>"
@@ -375,4 +369,88 @@ function print_user($grade_user, $userid) {
             }
 //            echo "</tbody></table>";                        
             echo "</div>";
+            
+            echo "<h3>Acessos</h3>";
+            echo "<div id='table-access-user'>";                            
+            foreach ($access_user as $value) {
+            echo "<div style='display: grid; grid-template-rows: auto;'>";
+                echo "<div style='display: grid; grid-template-columns: auto auto auto auto;'>";
+                    echo "<p>Evento</p>";                
+                    echo "<p>$value->eventname</p>";                                    
+                    echo "<p>Data</p>";                
+                    echo "<p>10-10-2018</p>";                
+                echo "</div>";                           
+            echo "</div>";                           
+            }            
+            echo "</div>";
+}
+
+function get_access_user($courseid,$userid,$filter ) {
+    global $DB;
+    global $OUTPUT;
+    $condition;
+    
+    switch ($filter) {
+        case "all_times":
+            echo "Todo curso";            
+            break;
+        case "three_months":
+            echo "Nos últimos 3 mêses";
+            $condition = "and to_timestamp(timecreated) > current_date - interval '3 months'";
+            break;
+        case "month":
+            echo "No ultimo mês";
+            $condition = "and to_timestamp(timecreated) > current_date - interval '1 month'";
+            break;
+        case "week":
+            echo "Na última semana";
+            $condition = "and to_timestamp(timecreated) > current_date - interval '1 week'";
+            break;      
+        default:
+            break;
+    }
+    
+    $sql = "SELECT count(timecreated) 
+            FROM public.mdl_logstore_standard_log l 
+            where userid = $userid and courseid = $courseid 
+            $condition";
+    
+    $access = $DB->get_records_sql($sql);
+    
+    return $access;
+}
+
+function get_list_access_user($courseid,$userid,$filter ) {
+    global $DB;
+    global $OUTPUT;
+    $condition;
+    
+    switch ($filter) {
+        case "all_times":
+            echo "Todo curso";            
+            break;
+        case "three_months":
+            echo "Nos últimos 3 mêses";
+            $condition = "and to_timestamp(timecreated) > current_date - interval '3 months'";
+            break;
+        case "month":
+            echo "No ultimo mês";
+            $condition = "and to_timestamp(timecreated) > current_date - interval '1 month'";
+            break;
+        case "week":
+            echo "Na última semana";
+            $condition = "and to_timestamp(timecreated) > current_date - interval '1 week'";
+            break;      
+        default:
+            break;
+    }
+    
+    $sql = "SELECT eventname 
+            FROM public.mdl_logstore_standard_log l 
+            where userid = $userid and courseid = $courseid 
+            $condition";
+    
+    $access = $DB->get_records_sql($sql);
+    
+    return $access;
 }
