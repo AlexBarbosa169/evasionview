@@ -17,14 +17,32 @@ function funcao_teste(){
 // função para impressão do bread crumb e as páginas referentes a cada solicitação do usuário
 function print_navigation_evasionview($params,$url) {        
         global $OUTPUT;
-        
+        //var_dump($params);
 //        Incluir aqui o que se espera quando o usuário requer a visualização do grupo de risco dos usuários
         if($params['group']){            
 //            print_icon_evasionview('group');
             echo "<div class='view-title'>
                               <h3>Group Risk</h3></div>";
-            echo "<input type='text' placeholder='Search..'>";
-            print_group_view($params['group'], $params['id']);            
+            echo "<form name=\"form\" action=\"\" method=\"post\">
+                <input type=\"text\" name=\"search\" id=\"search\" value=\"\">
+                <button type=\"submit\" value=\"Submit\">Buscar</button>
+                </form>";
+           // var_dump($params['group']);
+            if (empty($_POST['search'])){
+                //echo 'entrei no if, vazio!';
+                print_group_view($params['group'], $params['id']);  
+            }else{
+                //echo 'entrei no else pai!';
+                
+                $valor = $_POST['search'];
+                $users_filtered = filter_group($params, $valor, $params['group']);
+                if (empty($users_filtered)){
+                    echo 'Nemhum usuario encontrado!';
+                }
+                print_filtered_list($users_filtered, $params['id']);
+            }
+             
+            
         }else{
 //        Incluir aqui o que se espera quando o usuário requer a visualização das informações sobre um usuário em específico
             if($params['userinfo']){
@@ -239,9 +257,9 @@ function print_group_view($group, $courseid) {
                             $progress = $user_progress->sum;
                         }
                         echo "<div style='overflow: scroll; max-height: 415px;'>";
-                        for($i=0;$i<4;$i++){
+                        
                             print_simple_user($courseid, $user->id, $user->firstname, $user->lastname, $progress);     
-                        }                        
+                                               
                         echo "</div";
                     }
     }else{
@@ -377,4 +395,39 @@ function print_user($grade_user, $userid) {
             }
 //            echo "</tbody></table>";                        
             echo "</div>";
+}
+
+function filter_group($params, $valor, $group){
+    $groups = get_group_grades_evasionview($params['id']);
+    //var_dump($group);
+    $group_info = strtolower($group);
+   // var_dump($group_info);
+    $selectedGroup = $groups[$group_info];
+   // var_dump($selectedGroup);
+    //echo 'o';
+    
+    $valor_filtrado = $valor;
+    $users_filtrado = array_filter($selectedGroup, function($user) use($valor_filtrado){
+        if(strpos($user->firstname, $valor_filtrado) === 0){
+            return $user;
+        }
+        });
+    //echo 'Filtrei aqui embaixo';
+    //var_dump($users_filtrado);
+    return $users_filtrado;
+    
+}
+
+function print_filtered_list($users, $courseid){
+    foreach ($users as $user) {                        
+        $progresses = grade_progress($courseid, $user->id);
+        foreach ($progresses as $user_progress){                                             
+            $progress = $user_progress->sum;
+        }
+        echo "<div style='overflow: scroll; max-height: 415px;'>";
+
+            print_simple_user($courseid, $user->id, $user->firstname, $user->lastname, $progress);     
+
+        echo "</div";
+        }
 }
