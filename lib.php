@@ -24,29 +24,43 @@ function print_navigation_evasionview($params,$url) {
                               <strong><p>Selecione um usuário para detalhar suas informações.</strong></p></div>";
             print_group_view($params['group'], $params['id']);            
         }else{
-//        Incluir aqui o que se espera quando o usuário requer a visualização das informações sobre um usuário em específico
+//        Incluir aqui o que se espera quando o usuário requer a visualização das informações sobre um usuário em específico            
             if($params['userinfo']){
 //            print_icon_evasionview('userinfo');  
             echo "<div class='view-title'><strong><p>Detalhamento dos dados de notas, interações e acessos do usuário.</strong></p></div>";
-//            inserir visualização para o usuário            
-//            var_dump($url);            
-            echo $OUTPUT->action_link(new moodle_url($url, array('userinfo'=>$params['userinfo'],'filter'=>'all_times')),"Todo o curso");
-            echo $OUTPUT->action_link(new moodle_url($url, array('userinfo'=>$params['userinfo'],'filter'=>'three_months')),"No ultimo trimestre");
-            echo $OUTPUT->action_link(new moodle_url($url, array('userinfo'=>$params['userinfo'],'filter'=>'month')),"No ultimo mês");
-            echo $OUTPUT->action_link(new moodle_url($url, array('userinfo'=>$params['userinfo'],'filter'=>'week')),"Na última semana");
+//            inserir visualização para o usuário                        
+
+            $startdatecourse = get_course_start_date($params['id']);
             
-            $grade_user = get_grade_user($params['id'], $params['userinfo']);
-            $access_user = get_list_access_user($params['id'], $params['userinfo'],$params['filter']);
+            $mindate = $startdatecourse[$params['id']]->startdate;;
+            $maxdate = date("Y-m-d");
             
-//            var_dump($access_user);
-            print_user($grade_user,$access_user,$params['userinfo']);
+            if(isset($_POST['d_inicial'])){
+               $valuemindate = $_POST['d_inicial'];
+            }else{
+                $valuemindate = $startdatecourse[$params['id']]->startdate;
+            }
+            
+            if(isset($_POST['d_final'])){
+               $valuemaxdate = $_POST['d_final'];
+            }else{
+                $valuemaxdate = date("Y-m-d");            
+            }                                    
+            
+            echo"<form name='data' method='POST' action=''>                  
+                 De: <input type='date' name='d_inicial' min='$mindate' max='$maxdate' value='$valuemindate'>
+                 Até: <input type='date' name='d_final' min='$mindate' max='$maxdate' value='$valuemaxdate'>
+                 <input type='submit' value='Filtrar'>
+                 </form>";           
+                
+            print_user($params['id'],$params['userinfo'],$_POST['d_inicial'],$_POST['d_final']);
 //            echo $OUTPUT->action_link(new moodle_url($url, array('usersend'=>$params['userinfo'])), "Navegar para enviar mensagem");            
             }else{
 //        Incluir aqui o que se espera quando o usuário requer notificar um usuário selecionado no grupo de risco
                 if($params['usersend']){
 //                print_icon_evasionview('usersend');                
                     echo "<div class='view-title'><h3>User Send Message</h3></div>";
-                    echo $OUTPUT->action_link(new moodle_url($url),"Navegar para Home");            
+                    echo $OUTPUT->action_link(new moodle_url($url),"Navegar para Home");                      
                 }else{
 //        Incluir aqui o que se espera quando o usuário entra no link principal do plugin
 //                    print_icon_evasionview('home');                    
@@ -304,11 +318,18 @@ function print_simple_user($courseid, $userid, $userfirstname, $userlastname, $u
                             echo "</div>";         
 }
 
-function print_user($grade_user, $access_user ,$userid) {
+//function print_user($grade_user, $access_user ,$userid) {
+    function print_user($courseid ,$userid, $datainicial, $datafinal) {
     global $DB;
     global $OUTPUT;
-//    var_dump($access_user);
-    $options = array('size'=>200);     
+    
+//  Resgata do banco as notas obtidas pelo usuário pesquisado
+    $grade_user = get_grade_user($courseid, $userid);
+
+//  Resgata do banco os acessos do usuário no curso
+    $access_user = get_list_access_user($courseid, $userid,$datainicial,$datafinal);
+    
+    $options = array('size'=>100);     
     
     $user = $DB->get_record("user", array("id"=>$userid, 'deleted'=>0), '*', MUST_EXIST);             
 //    var_dump($user);
@@ -336,7 +357,8 @@ function print_user($grade_user, $access_user ,$userid) {
             </tbody>
         </table>";
         echo "<div>";
-        echo $OUTPUT->action_link(new moodle_url($url, array('id'=>$_GET['id'],'usersend'=>$user->id)), "Mensagem");
+        echo "<a data-trigger='core_message-messenger::sendmessage' data-fullname='Segundo Second' data-userid='4' role='button' class='btn' href='http://localhost/moodle-latest-31/moodle/message/index.php?id=4' id='yui_3_17_2_1_1539259101262_109'><span id='yui_3_17_2_1_1539259101262_108'><img class='iconsmall' role='presentation' alt='Message' title='Message' src='http://localhost/moodle-latest-31/moodle/theme/image.php/clean/core/1536223182/t/message'><span class='header-button-title' id='yui_3_17_2_1_1539259101262_107'>Message</span></span></a>";
+//        echo $OUTPUT->action_link(new moodle_url($url, array('id'=>$_GET['id'],'usersend'=>$user->id)), "Mensagem");
         echo "</div>";
     echo "</div>";        
     echo "<h3>Notas</h3>";
@@ -358,8 +380,8 @@ function print_user($grade_user, $access_user ,$userid) {
                             . "<div>Nota Máxima</div>"
                             . "<div>Nota Obtida</div>"
                             . "<div>Contribuição para o curso</div>"
-                        . "</div>"                        
-                        ."<div style='display: grid; grid-template-columns: auto auto auto auto'>"
+                        . "</div>";                        
+                        echo "<div style='display: grid; grid-template-columns: auto auto auto auto'>"
                             . "<div>$grade->notaminima</div>"
                             . "<div>$grade->notamaxima</div>"
                             . "<div>$notaobtida</div>"
@@ -372,15 +394,26 @@ function print_user($grade_user, $access_user ,$userid) {
             
             echo "<h3>Acessos</h3>";
             echo "<div id='table-access-user'>";                            
-            foreach ($access_user as $value) {
+            if($access_user){
+//            foreach ($access_user as $access) {
+            $a = 0;
+            foreach ($access_user as $key => $access) {   
+            $style = "";
+            if($a%2){
+            $style = "style='background-color: transparent;'";            
+            }
             echo "<div style='display: grid; grid-template-rows: auto;'>";
-                echo "<div style='display: grid; grid-template-columns: auto auto auto auto;'>";
+                echo "<div $style class='card_access_user'>";
                     echo "<p>Evento</p>";                
-                    echo "<p>$value->eventname</p>";                                    
+                    echo "<p>$access->eventname</p>";                                    
                     echo "<p>Data</p>";                
-                    echo "<p>10-10-2018</p>";                
+                    echo "<p>$access->evtdate</p>";                
                 echo "</div>";                           
             echo "</div>";                           
+            $a++;
+            }
+            }else{
+                echo"<p>Nenhum acesso para ser mostrado nesse período!</p>";
             }            
             echo "</div>";
 }
@@ -420,37 +453,37 @@ function get_access_user($courseid,$userid,$filter ) {
     return $access;
 }
 
-function get_list_access_user($courseid,$userid,$filter ) {
+
+function get_list_access_user($courseid,$userid,$datainicial,$datafinal ) {
     global $DB;
     global $OUTPUT;
-    $condition;
+    $mindatefilter = "";
     
-    switch ($filter) {
-        case "all_times":
-            echo "Todo curso";            
-            break;
-        case "three_months":
-            echo "Nos últimos 3 mêses";
-            $condition = "and to_timestamp(timecreated) > current_date - interval '3 months'";
-            break;
-        case "month":
-            echo "No ultimo mês";
-            $condition = "and to_timestamp(timecreated) > current_date - interval '1 month'";
-            break;
-        case "week":
-            echo "Na última semana";
-            $condition = "and to_timestamp(timecreated) > current_date - interval '1 week'";
-            break;      
-        default:
-            break;
+    if($datainicial!=null){
+        $mindatefilter = "and to_timestamp(timecreated) >= to_timestamp('$datainicial', 'YYYY-MM-DD')";
     }
     
-    $sql = "SELECT eventname 
+    if($datafinal!=null){
+        $maxdatefiilter = "and to_timestamp(timecreated) <= to_timestamp('$datafinal', 'YYYY-MM-DD')";
+    }
+
+    $sql = "SELECT id,eventname, to_char(to_timestamp(timecreated), 'DD-MM-YYYY') as evtdate  
             FROM public.mdl_logstore_standard_log l 
             where userid = $userid and courseid = $courseid 
-            $condition";
+            $mindatefilter
+            $maxdatefiilter";
     
     $access = $DB->get_records_sql($sql);
     
     return $access;
+}
+
+function get_course_start_date($courseid) {
+    global $DB;
+    
+    $startdate = null;
+    $sql = "select id, to_char(to_timestamp(startdate),'YYYY-MM-DD') as startdate from public.mdl_course where id=$courseid";
+    $startdate = $DB->get_records_sql($sql); 
+    
+    return $startdate;
 }

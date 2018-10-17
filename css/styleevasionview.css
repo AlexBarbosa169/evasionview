@@ -3,7 +3,16 @@
     height: 200px;
     max-height: 200px;
     text-align: left;
+    padding: 5px;
+    border: solid 1px darkgray;
 }
+
+.card_access_user{
+        display: grid;
+        grid-template-rows: 1fr 1fr;
+        grid-template-columns: auto auto;
+        background-color: lightgrey;
+    }
     
 #contents{
     display: grid;
@@ -93,7 +102,7 @@ div#piechart{
     
     div #grid-user-info div .user-info-title {
         background-color: gainsboro;
-    }   
+    }      
     
     #grid-user-info{
         display: grid;
@@ -178,6 +187,14 @@ div#piechart{
     #col-img{
     display: grid;                    
     grid-template-columns:max-content auto auto;
+    }        
+    
+    .card_access_user{
+        display: grid;
+        grid-template-rows: 1fr;
+        background-color: lightgrey;
+        grid-template-columns: auto auto;
+        padding: 5px;
     }
     
     #table-user{
@@ -191,6 +208,8 @@ div#piechart{
     height: 200px;
     max-height: 200px;
     text-align: left;
+    padding: 5px;
+    border: solid 1px darkgray;
     }
 }
 
