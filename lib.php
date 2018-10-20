@@ -32,7 +32,6 @@ function print_navigation_evasionview($params, $url) {
             echo "<div class='view-title'><strong><p>Detalhamento dos dados de notas, interações e acessos do usuário.</strong></p></div>";
 
 //            inserir visualização para o usuário                        
-
 //            $startdatecourse = get_course_start_date($params['id']);
 //
 //            $mindate = $startdatecourse[$params['id']]->startdate;
@@ -331,21 +330,22 @@ function print_simple_user($courseid, $userid, $userfirstname, $userlastname, $u
 //function print_user($grade_user, $access_user ,$userid) {
 function print_user($courseid, $userid, $datainicial, $datafinal) {
     global $DB;
-    global $OUTPUT;                    
-    
-            if(!$datainicial){
-                $startdatecourse = get_course_start_date($courseid);
-                $datainicial = $startdatecourse[$courseid]->startdate;
-            }
-            
-            if(!$datafinal){
-                $datafinal = date("Y-m-d");
-            }              
-            
-            $mindate = $startdatecourse[$courseid]->startdate;                                    
-    
-            echo "<p onclick='clicou()' >Clique aqui!</p>";            
-    
+    global $OUTPUT;
+    $startdatecourse = get_course_start_date($courseid);
+
+    if (!$datainicial) {
+        $datainicial = $startdatecourse[$courseid]->startdate;
+    }
+
+    if (!$datafinal) {
+        $datafinal = date("Y-m-d");
+    }
+
+    $mindate = $startdatecourse[$courseid]->startdate;
+    $maxdate = date("Y-m-d");
+
+    echo "<p onclick='clicou()' >Clique aqui!</p>";
+
 //  Resgata do banco as notas obtidas pelo usuário pesquisado
     $grade_user = get_grade_user($courseid, $userid, $datainicial, $datafinal);
 
@@ -382,15 +382,15 @@ function print_user($courseid, $userid, $datainicial, $datafinal) {
     echo "<div>";
     echo "<a data-trigger='core_message-messenger::sendmessage' data-fullname='Segundo Second' data-userid='4' role='button' class='btn' href='http://localhost/moodle-latest-31/moodle/message/index.php?id=4' id='yui_3_17_2_1_1539259101262_109'><span id='yui_3_17_2_1_1539259101262_108'><img class='iconsmall' role='presentation' alt='Message' title='Message' src='http://localhost/moodle-latest-31/moodle/theme/image.php/clean/core/1536223182/t/message'><span class='header-button-title' id='yui_3_17_2_1_1539259101262_107'>Message</span></span></a>";
 //        echo $OUTPUT->action_link(new moodle_url($url, array('id'=>$_GET['id'],'usersend'=>$user->id)), "Mensagem");
-    echo "</div>";        
     echo "</div>";
-    
+    echo "</div>";
+
     echo"<form style='display:flex;'name='data' method='POST' action=''>                  
-                 <label style='padding:5px;'>De: </label><input type='date' name='d_inicial' min='$mindate' max='$datafinal' value='$datainicial'>
-                 <label style='padding:5px;'>Até: </label><input type='date' name='d_final' min='$datainicial' max='$datafinal' value='$datafinal'>
+                 <label style='padding:5px;'>De: </label><input type='date' name='d_inicial' min='$mindate' max='$maxdate' value='$datainicial'>
+                 <label style='padding:5px;'>Até: </label><input type='date' name='d_final' min='$mindate' max='$maxdate' value='$datafinal'>
                  <input type='submit' value='Filtrar'>
                  </form>";
-    
+
     echo "<h3>Notas</h3>";
     if ($grade_user) {
         echo "<div id='table-user'>";
@@ -400,7 +400,7 @@ function print_user($courseid, $userid, $datainicial, $datafinal) {
                 $notaobtida = 0;
             else
                 $notaobtida = $grade->notaobtida;
-            
+
             if (!$grade->contribuicao)
                 $contribuicao = "0";
             else
