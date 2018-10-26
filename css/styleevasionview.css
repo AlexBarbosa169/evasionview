@@ -3,8 +3,7 @@
     height: 200px;
     max-height: 200px;
     text-align: left;
-    padding: 5px;
-    border: solid 1px darkgray;
+    padding: 5px;    
 }
 
 .card_access_user{
@@ -12,6 +11,11 @@
     grid-template-rows: 1fr 1fr;
     grid-template-columns: auto auto;
     background-color: lightgrey;
+    padding: 2px;
+}
+
+.card_access_user p {
+    padding: 2px;
 }
 
 #contents{
@@ -23,6 +27,7 @@
     display: grid;
     grid-template-columns: 1fr 1fr;
     background-color: lightgray;
+    padding: 2px;
 }
 
 #card-user{
@@ -108,10 +113,9 @@ div #grid-user-info div .user-info-title {
     display: grid;
     grid-template-columns: auto;
     grid-template-rows: auto auto auto;
-    padding: 10px;
-    border: solid 1px #9E9E9E;
+    padding: 2px;       
     background-color: whitesmoke;                                
-    margin: 2px;                        
+    margin-bottom: 5px;
 }
 .view-title{
     text-align: center;
@@ -191,10 +195,15 @@ div #grid-user-info div .user-info-title {
 
     .card_access_user{
         display: grid;
-        grid-template-rows: 1fr;
-        background-color: lightgrey;
+        grid-template-rows: 1fr;        
         grid-template-columns: auto auto;
-        padding: 5px;
+        padding: 2px;
+        margin-bottom: 5px;
+        text-align: left;        
+    }
+    
+    .card_access_user p{
+        padding: 2px;
     }
 
     #table-user{
@@ -208,8 +217,7 @@ div #grid-user-info div .user-info-title {
         height: 200px;
         max-height: 200px;
         text-align: left;
-        padding: 5px;
-        border: solid 1px darkgray;
+        padding: 5px;        
     }
 }
 

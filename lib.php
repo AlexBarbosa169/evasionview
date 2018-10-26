@@ -23,37 +23,16 @@ function print_navigation_evasionview($params, $url) {
     if ($params['group']) {
 //            print_icon_evasionview('group');
         echo "<div class='view-title'>
-                              <strong><p>Selecione um usuário para detalhar suas informações.</strong></p></div>";
+              <strong><p>Selecione um usuário para detalhar suas informações.</strong>
+              </p></div>";                
+        
+        
         print_group_view($params['group'], $params['id']);
-    } else {
+        } else {
 //        Incluir aqui o que se espera quando o usuário requer a visualização das informações sobre um usuário em específico            
         if ($params['userinfo']) {
 //            print_icon_evasionview('userinfo');  
             echo "<div class='view-title'><strong><p>Detalhamento dos dados de notas, interações e acessos do usuário.</strong></p></div>";
-
-//            inserir visualização para o usuário                        
-//            $startdatecourse = get_course_start_date($params['id']);
-//
-//            $mindate = $startdatecourse[$params['id']]->startdate;
-//            $maxdate = date("Y-m-d");
-//
-//            if (isset($_POST['d_inicial'])) {
-//                $valuemindate = $_POST['d_inicial'];
-//            } else {
-//                $valuemindate = $startdatecourse[$params['id']]->startdate;
-//            }
-//
-//            if (isset($_POST['d_final'])) {
-//                $valuemaxdate = $_POST['d_final'];
-//            } else {
-//                $valuemaxdate = date("Y-m-d");
-//            }            
-//            echo "<p onclick='clicou()' >Clique aqui!</p>";
-//            echo"<form style='display:flex;'name='data' method='POST' action=''>                  
-//                 <label style='padding:5px;'>De: </label><input type='date' name='d_inicial' min='$mindate' max='$maxdate' value='$valuemindate'>
-//                 <label style='padding:5px;'>Até: </label><input type='date' name='d_final' min='$mindate' max='$maxdate' value='$valuemaxdate'>
-//                 <input type='submit' value='Filtrar'>
-//                 </form>";
 
             print_user($params['id'], $params['userinfo'], $_POST['d_inicial'], $_POST['d_final']);
 //            echo $OUTPUT->action_link(new moodle_url($url, array('usersend'=>$params['userinfo'])), "Navegar para enviar mensagem");            
@@ -234,8 +213,8 @@ function grade_progress($courseid, $userid) {
 
 function print_group_view($group, $courseid) {
     global $OUTPUT;
-    $groups = get_group_grades_evasionview($courseid);
-
+    $groups = get_group_grades_evasionview($courseid);    
+    
     if ($group != null) {
         switch ($group) {
             case 'Good':
@@ -254,6 +233,28 @@ function print_group_view($group, $courseid) {
                 echo "<h1>Nada para ser mostrado!</h1>";
                 break;
         }
+        
+        $letras = array("all"=>"all");
+        
+        foreach ($group as $user) {
+            $l = substr($user->firstname,0,1); 
+            $letras["$l"] = "$l";
+        }                
+        
+        echo "<form action='' method='post'><label>Filtrar por inicial</label><select name='first_char'>";                
+        foreach($letras as $letra){                        
+                echo "<option value='$letra'>$letra</option>";              
+            }
+        echo "</select>";
+        echo "<input type='submit' value='Filtrar'></input>";
+        echo "</form>";
+        
+        $first_char = null;
+        
+        if(isset($_POST['first_char'])){
+            echo $_POST['first_char'];
+            $first_char = $_POST['first_char'];
+        }
 
         foreach ($group as $user) {
             $access_user = get_access_user($courseid, $user->id, null);
@@ -262,9 +263,19 @@ function print_group_view($group, $courseid) {
                 $progress = $user_progress->sum;
             }
             echo "<div style='overflow: scroll; max-height: 415px;'>";
-            for ($i = 0; $i < 4; $i++) {
-                print_simple_user($courseid, $user->id, $user->firstname, $user->lastname, $progress, $access_user);
-            }
+            for ($i = 0; $i < 4; $i++) {                
+                if($first_char){
+                    if($first_char == 'all'){
+                        print_simple_user($courseid, $user->id, $user->firstname, $user->lastname, $progress, $access_user);                                        
+                    }else{
+                        if(substr($user->firstname,0,1) == $first_char){
+                           print_simple_user($courseid, $user->id, $user->firstname, $user->lastname, $progress, $access_user);                                        
+                           }   
+                    }                                     
+                    }else{                        
+                        print_simple_user($courseid, $user->id, $user->firstname, $user->lastname, $progress, $access_user);                
+                    }                    
+                }
             echo "</div";
         }
     } else {
@@ -321,7 +332,7 @@ function print_simple_user($courseid, $userid, $userfirstname, $userlastname, $u
                                 <div id='user-info'>Acessos durante o curso: $access</div>                                
                                 <div id='user-info-return'>
                                 ";
-    echo $OUTPUT->action_link(new moodle_url($url, array('id' => $courseid, 'userinfo' => $userid)), "Detalhamento das notas");
+    echo $OUTPUT->action_link(new moodle_url($url, array('id' => $courseid, 'userinfo' => $userid)), "Detalhar dados");
     echo "</div>";
     echo "</div>";
     echo "</div>";
@@ -385,12 +396,15 @@ function print_user($courseid, $userid, $datainicial, $datafinal) {
     echo "</div>";
     echo "</div>";
 
-    echo"<form style='display:flex;'name='data' method='POST' action=''>                  
+    echo"<div>
+        <h4>Filtros<h4/>
+        <form style='display:flex;'name='data' method='POST' action=''>                  
                  <label style='padding:5px;'>De: </label><input type='date' name='d_inicial' min='$mindate' max='$maxdate' value='$datainicial'>
                  <label style='padding:5px;'>Até: </label><input type='date' name='d_final' min='$mindate' max='$maxdate' value='$datafinal'>
+                 <label style='padding: 5px;'>Nome</label><input type='text' name='p_nome'>    
                  <input type='submit' value='Filtrar'>
-                 </form>";
-
+        </form>";
+        echo "</div>";
     echo "<h3>Notas</h3>";
     if ($grade_user) {
         echo "<div id='table-user'>";
@@ -438,10 +452,11 @@ function print_user($courseid, $userid, $datainicial, $datafinal) {
             if ($a % 2) {
                 $style = "style='background-color: transparent;'";
             }
-            echo "<div style='display: grid; grid-template-rows: auto;'>";
-            echo "<div $style class='card_access_user'>";
-            echo "<p>Evento</p>";
-            echo "<p>$access->eventname</p>";
+            echo "<div style='margin-bottom: 5px;'>";
+//            echo "<div $style class='card_access_user'>";
+            echo "<div class='card_access_user'>";
+            echo "<p style='background-color: whitesmoke;'>Evento</p>";
+            echo "<p style='background-color: whitesmoke;'>$access->eventname</p>";
             echo "<p>Data</p>";
             echo "<p>$access->evtdate</p>";
             echo "</div>";
