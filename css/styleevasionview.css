@@ -122,6 +122,70 @@ div #grid-user-info div .user-info-title {
     background-color: lightgray;
     border-radius: 8px;
 }
+
+   .horizontal-bar-chart{    
+    display: grid;     
+    grid-template-rows: max-content auto auto;
+}
+
+.chart-title{
+    text-align: center; 
+    margin: auto; 
+    width: 80%; 
+    height: fit-content;    
+    border-radius: 10px 10px 0 0;
+}
+
+.chart-conteudo{
+    overflow-y: scroll;
+    max-height: 400px;
+    display: grid;
+    width: 80%;
+    margin: auto;   
+    grid-template-columns: 1fr 4fr;
+}
+
+.chart-index{   
+    
+}    
+
+.bars{  
+    display: grid;       
+    margin: auto; 
+    width: 100%;     
+    grid-column-gap: 5px;
+}
+
+.chart-content{
+    text-align: center;
+    height: 30px;   
+    grid-column-start: 0;    
+    border-radius: 0 4px 4px 0;    
+    margin: 2px;
+}
+
+.chart-footer{
+    display: grid; 
+    width: 100%; 
+    margin: auto;   
+    grid-template-columns: 1fr 4fr;
+    border-radius: 0 0 10px 10px;
+}
+
+.chart-range{
+    display: grid;
+    width: 100%;
+    margin: auto;   
+    grid-template-columns: repeat(10, 1fr);
+    border-radius: 0 0 10px 0;
+}
+
+.chart-range p{
+    border-right: solid 1px;
+    text-align: right;
+    padding-right: 3px;
+}
+
 /* aplica somente a partir de 480px em landscape */
 @media screen and (min-width: 480px) {
     .nav-evasion {
@@ -165,6 +229,13 @@ div #grid-user-info div .user-info-title {
     }
 
     #container_index {    
+        display: grid;
+        grid-template-columns: 2fr 1fr;
+        grid-gap: 20px;
+        gap: 20px;    
+    }
+    
+    #container_access {    
         display: grid;
         grid-template-columns: 2fr 1fr;
         grid-gap: 20px;
@@ -219,5 +290,66 @@ div #grid-user-info div .user-info-title {
         text-align: left;
         padding: 5px;        
     }
+    
+    .horizontal-bar-chart{    
+    display: grid; 
+    grid-template-rows: max-content auto auto;
+}
+
+.chart-title{
+    text-align: center; 
+    margin: auto;     
+    height: fit-content;    
+    border-radius: 10px 10px 0 0;
+}
+
+.chart-conteudo{
+    overflow-y: scroll;
+    max-height: 400px;
+    width: 100%;
+    display: grid;    
+    margin: auto;   
+    grid-template-columns: 1fr 4fr;
+}
+
+.chart-index{   
+    
+}    
+
+.bars{  
+    display: grid;       
+    margin: auto; 
+    width: 100%;     
+    grid-column-gap: 5px;
+}
+
+.chart-content{
+    text-align: center;
+    height: 30px;   
+    grid-column-start: 0;    
+    border-radius: 0 4px 4px 0;    
+    margin: 2px;
+}
+
+.chart-footer{
+    display: grid;     
+    margin: auto;   
+    width: 100%;
+    grid-template-columns: 1fr 4fr;
+    border-radius: 0 0 10px 10px;
+}
+
+.chart-range{
+    display: grid;
+    width: 100%;
+    margin: auto;   
+    grid-template-columns: repeat(10, 1fr);
+    border-radius: 0 0 10px 0;
+}
+
+.chart-range p{
+    border-right: solid 1px;
+}
+
 }
 
