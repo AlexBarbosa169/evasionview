@@ -46,23 +46,30 @@ function print_navigation_evasionview($params, $url) {
                 echo "<div class='view-title'><strong><p>Selecione no gráfico para exibir os alunos do grupo de risco.</strong></p></div>";
 //                    echo $OUTPUT->action_link(new moodle_url($url,array('group'=>3)),"Navegar para Grupo de Usuários");
                 if (search_users($params['id'])) {
-                    $groups = get_group_grades_evasionview($params['id']);
-
-                    $good_group = count($groups['good']);
-                    $fair_group = count($groups['fair']);
-                    $poor_group = count($groups['poor']);
-                    $null_group = count($groups['null']);
-
+                    $groups_grades = get_group_grades_evasionview($params['id']);                    
+                    $groups_access = get_group_access_evasionview($params['id']);
                     echo "<div id='container_index' >";
-                    echo "<div id='piechart' >";
-                    grafchartjs($good_group, $fair_group, $poor_group, $null_group);
+                        echo "<div id='piechart' >";
+                                grafchartjs($groups_grades);
+                        echo "</div>";
+                        echo "<div class='pie_info1'>";
+                            echo "<div class='group-subtitle'><h5 id='good-group'>Good Group</h5><p>Grupo de estudantes com desempenho maior que 70%.</p></div>";
+                            echo "<div class='group-subtitle'><h5 id='fair-group'>Fair Group</h5><p>Grupo de estudantes com desempenho entre que 50 e 70%.</p></div>";
+                            echo "<div class='group-subtitle'><h5 id='poor-group'>Poor Group</h5><p>Grupo de estudantes com desempenho inferior a 50%.</p></div>";
+                            echo "<div class='group-subtitle'><h5 id='null-group'>Null Group</h5><p>Grupo de estudantes sem lançamento de notas.</p></div>";
+                        echo "</div>";
                     echo "</div>";
-                    echo "<div class='pie_info1'>";
-                    echo "<div class='group-subtitle'><h5 id='good-group'>Good Group</h5><p>Grupo de estudantes com desempenho maior que 70%.</p></div>";
-                    echo "<div class='group-subtitle'><h5 id='fair-group'>Fair Group</h5><p>Grupo de estudantes com desempenho entre que 50 e 70%.</p></div>";
-                    echo "<div class='group-subtitle'><h5 id='poor-group'>Poor Group</h5><p>Grupo de estudantes com desempenho inferior a 50%.</p></div>";
-                    echo "<div class='group-subtitle'><h5 id='null-group'>Null Group</h5><p>Grupo de estudantes sem lançamento de notas.</p></div>";
-                    echo "</div>";
+                    echo "<div id='container_access' style='border-top: 2px solid lightgrey;'>";                                
+                                echo "<div id='piechart' >";                                
+                                    grafbarchartjs($groups_grades);
+                                echo "</div>";
+//                                var_dump($groups_access);
+                                echo "<div class='pie_info1'>";
+                                    echo "<div class='group-subtitle'><h5 id='null-group'>0 acesso</h5><p>Grupo de estudantes sem lançamento de notas.</p></div>";    
+                                    echo "<div class='group-subtitle'><h5 id='poor-group'>De 1 á 5 acessos</h5><p>Grupo de estudantes com desempenho inferior a 50%.</p></div>";
+                                    echo "<div class='group-subtitle'><h5 id='fair-group'>De 6 á 15 acessos</h5><p>Grupo de estudantes com desempenho entre que 50 e 70%.</p></div>";
+                                    echo "<div class='group-subtitle'><h5 id='good-group'>De 15 á 30 acessos</h5><p>Grupo de estudantes com desempenho maior que 70%.</p></div>";                                    
+                                echo "</div>";
                     echo "</div>";
                 } else {
                     echo "<div style='text-align:center'>
@@ -71,7 +78,7 @@ function print_navigation_evasionview($params, $url) {
                                 Não há usuários cadastrados para esse curso
                                 </div>                
                            </div>";
-                }
+                }                
             }
         }
     }
@@ -139,7 +146,58 @@ function get_group_grades_evasionview($courseid) {
     return $groups;
 }
 
-function grafchartjs($good, $fair, $poor, $null) {
+function get_group_access_evasionview($courseid) {
+    $usersCourse = search_users($courseid);
+    
+    $noaccess = array();    
+    $onetofive = array();
+    $sixtofifteen = array();
+    $sixteentothirty = array();
+    $moreThan = array();            
+    
+    foreach ($usersCourse as $user) {                                             
+//            echo "$user->firstname: ";            
+            $user_access = get_access_user($courseid, $user->id); 
+            
+            if($user_access){
+                foreach ($user_access as $user) {
+                    if ($user->count > 0 && $user->count <= 5){
+                        $onetofive[] = ($user);
+                    }else{
+                        if ($user->count > 5 && $user->count <= 15){
+                            $sixtofifteen[] = ($user);
+                        }else{
+                            if ($user->count > 15 && $user->count <= 30){
+                                $sixteentothirty[] = ($user);
+                            }else{
+                                $moreThan[]=($user);
+                            }
+                        }
+                    }
+//                    echo $user->count;
+                }   
+            }else{
+//                echo 0;
+                $noaccess[] = ($user);
+            }   
+//            echo " acessos.<br>";
+        }  
+        
+        $groups = array('noaccess'=>$noaccess, 
+                    'onetofive'=>$onetofive,
+                    'sixtofifteen'=>$sixtofifteen,
+                    'sixteentothirty'=>$sixteentothirty,
+                    'moreThan'=>$moreThan,
+                    );    
+        
+        return $groups;        
+}
+
+function grafchartjs($groups) {
+    $good = count($groups['good']);
+    $fair = count($groups['fair']);
+    $poor = count($groups['poor']);
+    $null = count($groups['null']);
     echo "<canvas id='myChartPie' width='400' height='400'></canvas>";
 
     echo "<script src='js/Chart.min.js'></script>";
@@ -191,6 +249,92 @@ function grafchartjs($good, $fair, $poor, $null) {
             }
         };
         </script>";
+}
+
+function grafbarchartjs($groupsaccess) {
+    echo "<div style='width: 100%'>
+            <div class='bar-chart'>
+                <canvas id='myChart' width='400' height='400'></canvas>                            
+            </div>                        
+        </div>
+        
+        
+        <script src='Chart.min.js'>    
+        
+        </script>
+
+<script>
+    
+var ctx = document.getElementById('myChart').getContext('2d');
+    var myBarChart = new Chart(ctx, {        
+    type: 'bar',    
+    data: {
+//        labels: ['Acima da Média', 'Na média', 'Abaixo da média', 'Sem Acessos'],
+        datasets: [{
+            label: '50 > acessos',
+            data: [1],            
+            backgroundColor: [
+                'rgb(0, 232, 0)'                
+            ],
+            borderColor: [
+                'rgba(255, 255, 255,1)'
+            ],
+            borderWidth: 1
+        },
+        {
+            label: '30 - 50',
+            data: [5],            
+            backgroundColor: [
+                'rgba(255, 235, 59, 1)'                
+            ],
+            borderColor: [
+                'rgba(255, 255, 255,1)'
+            ],
+            borderWidth: 1
+        },
+        {
+            label: '10 - 20',
+            data: [15],            
+            backgroundColor: [
+                'rgb(200, 0, 0)'                
+            ],
+            borderColor: [
+                'rgba(255, 255, 255,1)'
+            ],
+            borderWidth: 1
+        },
+        {
+            label: '0 acesso',
+            data: [1],            
+            backgroundColor: [
+                'rgb(128, 128, 128)'                
+            ],
+            borderColor: [
+                'rgba(255, 255, 255,1)'
+            ],
+            borderWidth: 1
+        }
+            ]
+    },
+    options: {        
+        animation: false,
+        responsive: true,        
+        legend: {
+            display: true,
+            labels: {                
+                fontColor: 'rgb(255, 99, 132)'
+            }
+        },
+        scales: {
+            yAxes: [{                
+                ticks: {                    
+                    beginAtZero: true
+                }
+            }]
+        }
+    }
+});
+</script>";
 }
 
 function grade_progress($courseid, $userid) {
@@ -497,10 +641,14 @@ function get_access_user($courseid, $userid, $filter) {
             break;
     }
 
-    $sql = "SELECT count(timecreated) 
-            FROM public.mdl_logstore_standard_log l 
-            where userid = $userid and courseid = $courseid 
-            $condition";
+    $sql = "SELECT u.firstname, u.id, count(l.timecreated)
+            FROM public.mdl_logstore_standard_log as l						
+            join public.mdl_user as u
+            on u.id = l.userid
+            where userid = $userid
+            and courseid = $courseid
+            and to_timestamp(l.timecreated) >  CURRENT_DATE - INTERVAL '2 months'
+            group by u.id";
 
     $access = $DB->get_records_sql($sql);
 
