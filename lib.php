@@ -46,8 +46,8 @@ function print_navigation_evasionview($params, $url) {
                 echo "<div class='view-title'><strong><p>Selecione no gráfico para exibir os alunos do grupo de risco.</strong></p></div>";
 //                    echo $OUTPUT->action_link(new moodle_url($url,array('group'=>3)),"Navegar para Grupo de Usuários");
                 if (search_users($params['id'])) {
-                    $groups_grades = get_group_grades_evasionview($params['id']);                    
-                    $groups_access = get_group_access_evasionview($params['id']);
+                    $groups_grades = get_group_grades_evasionview($params['id']);                                         
+                    $groups_access = get_group_access_evasionview($params['id']);                                                             
                     echo "<div id='container_index' >";
                         echo "<div id='piechart' >";
                                 grafchartjs($groups_grades);
@@ -60,15 +60,18 @@ function print_navigation_evasionview($params, $url) {
                         echo "</div>";
                     echo "</div>";
                     echo "<div id='container_access' style='border-top: 2px solid lightgrey;'>";                                
-                                echo "<div id='piechart' >";                                
-                                    grafbarchartjs($groups_grades);
+                                echo "<div id='barchart' >";                                
+                                    grafbarchartjs($groups_access);
                                 echo "</div>";
 //                                var_dump($groups_access);
                                 echo "<div class='pie_info1'>";
-                                    echo "<div class='group-subtitle'><h5 id='null-group'>0 acesso</h5><p>Grupo de estudantes sem lançamento de notas.</p></div>";    
+                                    echo "<div class='group-subtitle'><h5 id='null-group'>0 acesso</h5><p>Grupo de estudantes sem lançamento de notas.</p></div>";                                        
                                     echo "<div class='group-subtitle'><h5 id='poor-group'>De 1 á 5 acessos</h5><p>Grupo de estudantes com desempenho inferior a 50%.</p></div>";
                                     echo "<div class='group-subtitle'><h5 id='fair-group'>De 6 á 15 acessos</h5><p>Grupo de estudantes com desempenho entre que 50 e 70%.</p></div>";
-                                    echo "<div class='group-subtitle'><h5 id='good-group'>De 15 á 30 acessos</h5><p>Grupo de estudantes com desempenho maior que 70%.</p></div>";                                    
+                                    echo "<div class='group-subtitle'><h5 id='good-group'>De 15 á 30 acessos</h5><p>Grupo de estudantes com desempenho maior que 70%.</p></div>"; 
+                                    echo "<div class='group-subtitle'><h5 id='null-group'>De 31 á 50 acessos</h5><p>Grupo de estudantes sem lançamento de notas.</p></div>";    
+                                    echo "<div class='group-subtitle'><h5 id='null-group'>De 51 á 99 acessos</h5><p>Grupo de estudantes sem lançamento de notas.</p></div>";    
+                                    echo "<div class='group-subtitle'><h5 id='null-group'>Mais 100 acessos</h5><p>Grupo de estudantes sem lançamento de notas.</p></div>";    
                                 echo "</div>";
                     echo "</div>";
                 } else {
@@ -153,14 +156,17 @@ function get_group_access_evasionview($courseid) {
     $onetofive = array();
     $sixtofifteen = array();
     $sixteentothirty = array();
+    $thirtyonetofifty = array();
+    $fiftyonetoninetynine = array();
     $moreThan = array();            
     
     foreach ($usersCourse as $user) {                                             
 //            echo "$user->firstname: ";            
             $user_access = get_access_user($courseid, $user->id); 
-            
+//            var_dump($user_access);
             if($user_access){
                 foreach ($user_access as $user) {
+//                    var_dump($user);
                     if ($user->count > 0 && $user->count <= 5){
                         $onetofive[] = ($user);
                     }else{
@@ -251,7 +257,17 @@ function grafchartjs($groups) {
         </script>";
 }
 
-function grafbarchartjs($groupsaccess) {
+function grafbarchartjs($groups_access) {        
+    
+    $noaccess = count($groups_access['noaccess']);
+//    echo $noaccess;    
+    $onetofive = count($groups_access['onetofive']);
+//    echo $onetofive;
+    $sixtofifteen = count($groups_access['sixtofifteen']);
+//    echo $sixtofifteen;
+    $morethan = count($groups_access['morethan']);
+//    echo $morethan;
+    
     echo "<div style='width: 100%'>
             <div class='bar-chart'>
                 <canvas id='myChart' width='400' height='400'></canvas>                            
@@ -263,66 +279,93 @@ function grafbarchartjs($groupsaccess) {
         
         </script>
 
-<script>
+        <script>
     
-var ctx = document.getElementById('myChart').getContext('2d');
+    var ctx = document.getElementById('myChart').getContext('2d');
     var myBarChart = new Chart(ctx, {        
-    type: 'bar',    
-    data: {
-//        labels: ['Acima da Média', 'Na média', 'Abaixo da média', 'Sem Acessos'],
-        datasets: [{
-            label: '50 > acessos',
-            data: [1],            
-            backgroundColor: [
-                'rgb(0, 232, 0)'                
-            ],
-            borderColor: [
-                'rgba(255, 255, 255,1)'
-            ],
-            borderWidth: 1
-        },
-        {
-            label: '30 - 50',
-            data: [5],            
-            backgroundColor: [
-                'rgba(255, 235, 59, 1)'                
-            ],
-            borderColor: [
-                'rgba(255, 255, 255,1)'
-            ],
-            borderWidth: 1
-        },
-        {
-            label: '10 - 20',
-            data: [15],            
-            backgroundColor: [
-                'rgb(200, 0, 0)'                
-            ],
-            borderColor: [
-                'rgba(255, 255, 255,1)'
-            ],
-            borderWidth: 1
-        },
-        {
-            label: '0 acesso',
-            data: [1],            
-            backgroundColor: [
-                'rgb(128, 128, 128)'                
-            ],
-            borderColor: [
-                'rgba(255, 255, 255,1)'
-            ],
-            borderWidth: 1
-        }
+    type: 'bar',        
+    data: {                        
+        datasets: [{                    
+                    label: '0 ...',                   
+                    data: [4],
+                    backgroundColor: [
+                        'rgba(255, 0, 0, 1)'                        
+                    ],
+                    borderColor: [
+                        'rgba(255, 0, 0,1)'                        
+                    ],
+                    borderWidth: 1
+                },{                    
+                    label: '1 - 5',                   
+                    data: [1],
+                    backgroundColor: [                        
+                        'rgba(255, 106, 61, 1)'                        
+                    ],
+                    borderColor: [                        
+                        'rgba(255, 106, 61, 1)'                        
+                    ],
+                    borderWidth: 1
+                },{                    
+                    label: '6 - 15',                   
+                    data: [7],
+                    backgroundColor: [
+                        'rgba(255, 203, 61, 1)'                        
+                    ],
+                    borderColor: [
+                        'rgba(255, 203, 61, 1)'                        
+                    ],
+                    borderWidth: 1
+                },{                    
+                    label: '16 - 30',                   
+                    data: [6],
+                    backgroundColor: [
+                        'rgba(255, 235 , 59, 1)'                        
+                    ],
+                    borderColor: [
+                        'rgba(255, 235 , 59,1)'                        
+                    ],
+                    borderWidth: 1
+                },{                    
+                    label: '31 - 50',                   
+                    data: [12],
+                    backgroundColor: [
+                        'rgba(161, 255, 61, 1)'                        
+                    ],
+                    borderColor: [
+                        'rgba(161, 255, 61, 1)'                        
+                    ],
+                    borderWidth: 1
+                },{                    
+                    label: '51 - 99',                   
+                    data: [14],
+                    backgroundColor: [
+                        'rgba(100, 255, 0, 1)'                        
+                    ],
+                    borderColor: [
+                        'rgba(100, 255, 0, 1)'                        
+                    ],
+                    borderWidth: 1
+                },{                    
+                    label: '100 ...',                   
+                    data: [8],
+                    backgroundColor: [
+                        'rgba(0, 255, 0, 1)'                        
+                    ],
+                    borderColor: [
+                        'rgba(0, 255, 0,1)'                        
+                    ],
+                    borderWidth: 1
+                }                
             ]
-    },
-    options: {        
+        },
+    options: {
+        event:['click'],
         animation: false,
         responsive: true,        
         legend: {
             display: true,
             labels: {                
-                fontColor: 'rgb(255, 99, 132)'
+                fontColor: 'rgb(255, 99, 132)'                
             }
         },
         scales: {
@@ -334,6 +377,21 @@ var ctx = document.getElementById('myChart').getContext('2d');
         }
     }
 });
+
+        document.getElementById('myChart').onclick = function(evt){                                    
+            var activeElements = myBarChart.getElementAtEvent(evt);                        
+            
+            if(activeElements.length > 0)
+            {
+                var clickedElementindex = activeElements[0]['_datasetIndex'];            
+                label = myBarChart.data.datasets[clickedElementindex].label;
+                var parsedUrl = new URL(window.location.href);            
+                parsedUrl.searchParams.set('group',label);                                                
+                window.location.href = parsedUrl;          
+            }
+            
+        };
+
 </script>";
 }
 
@@ -355,7 +413,11 @@ function grade_progress($courseid, $userid) {
 
 function print_group_view($group, $courseid) {
     global $OUTPUT;
-    $groups = get_group_grades_evasionview($courseid);    
+    
+    $groups = get_group_grades_evasionview($courseid); 
+    $groups_access = get_group_access_evasionview($courseid);    
+    
+    var_dump($groups_access);
     
     if ($group != null) {
         switch ($group) {
@@ -370,6 +432,21 @@ function print_group_view($group, $courseid) {
                 break;
             case 'Null':
                 $group = $groups['null'];
+                break;
+            case 'noaccess':
+                $group = $groups_access['noaccess'];
+                break;
+            case 'onetofive':
+                $group = $groups_access['onetofive'];
+                break;
+            case 'sixtofifteen':
+                $group = $groups_access['sixtofifteen'];
+                break;
+            case 'sixteentothirty':
+                $group = $groups_access['sixteentothirty'];
+                break;
+            case 'moreThan':
+                $group = $groups_access['sixteentothirty'];
                 break;
             default:
                 echo "<h1>Nada para ser mostrado!</h1>";
@@ -641,7 +718,7 @@ function get_access_user($courseid, $userid, $filter) {
             break;
     }
 
-    $sql = "SELECT u.firstname, u.id, count(l.timecreated)
+    $sql = "SELECT u.firstname,u.lastname ,u.id, count(l.timecreated)
             FROM public.mdl_logstore_standard_log as l						
             join public.mdl_user as u
             on u.id = l.userid

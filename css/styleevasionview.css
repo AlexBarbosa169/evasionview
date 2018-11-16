@@ -66,6 +66,11 @@ div#piechart{
     position: relative;
 }
 
+div#barchart{
+    width: 100%;
+    position: relative;
+}
+
 #plugintitle{
     color: yellow;
 }
@@ -200,6 +205,11 @@ div #grid-user-info div .user-info-title {
 
     div#piechart{
         width: 70%;  
+        margin: auto;
+    }
+    
+    div#barchart{
+        width: 100%;  
         margin: auto;
     }
 
