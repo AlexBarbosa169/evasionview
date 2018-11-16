@@ -65,13 +65,13 @@ function print_navigation_evasionview($params, $url) {
                                 echo "</div>";
 //                                var_dump($groups_access);
                                 echo "<div class='pie_info1'>";
-                                    echo "<div class='group-subtitle'><h5 id='null-group'>0 acesso</h5><p>Grupo de estudantes sem lançamento de notas.</p></div>";                                        
-                                    echo "<div class='group-subtitle'><h5 id='poor-group'>De 1 á 5 acessos</h5><p>Grupo de estudantes com desempenho inferior a 50%.</p></div>";
-                                    echo "<div class='group-subtitle'><h5 id='fair-group'>De 6 á 15 acessos</h5><p>Grupo de estudantes com desempenho entre que 50 e 70%.</p></div>";
-                                    echo "<div class='group-subtitle'><h5 id='good-group'>De 15 á 30 acessos</h5><p>Grupo de estudantes com desempenho maior que 70%.</p></div>"; 
-                                    echo "<div class='group-subtitle'><h5 id='null-group'>De 31 á 50 acessos</h5><p>Grupo de estudantes sem lançamento de notas.</p></div>";    
-                                    echo "<div class='group-subtitle'><h5 id='null-group'>De 51 á 99 acessos</h5><p>Grupo de estudantes sem lançamento de notas.</p></div>";    
-                                    echo "<div class='group-subtitle'><h5 id='null-group'>Mais 100 acessos</h5><p>Grupo de estudantes sem lançamento de notas.</p></div>";    
+                                    echo "<div class='group-subtitle'><h5 id='group_no'>0 acesso</h5><p>Grupo de estudantes sem lançamento de notas.</p></div>";                                        
+                                    echo "<div class='group-subtitle'><h5 id='group_one'>De 1 á 5 acessos</h5><p>Grupo de estudantes com desempenho inferior a 50%.</p></div>";
+                                    echo "<div class='group-subtitle'><h5 id='group_six'>De 6 á 15 acessos</h5><p>Grupo de estudantes com desempenho entre que 50 e 70%.</p></div>";
+                                    echo "<div class='group-subtitle'><h5 id='group_fifteen'>De 15 á 30 acessos</h5><p>Grupo de estudantes com desempenho maior que 70%.</p></div>"; 
+                                    echo "<div class='group-subtitle'><h5 id='group_thirty'>De 31 á 50 acessos</h5><p>Grupo de estudantes sem lançamento de notas.</p></div>";    
+                                    echo "<div class='group-subtitle'><h5 id='group_fifty'>De 51 á 99 acessos</h5><p>Grupo de estudantes sem lançamento de notas.</p></div>";    
+                                    echo "<div class='group-subtitle'><h5 id='group_more'>Mais 100 acessos</h5><p>Grupo de estudantes sem lançamento de notas.</p></div>";    
                                 echo "</div>";
                     echo "</div>";
                 } else {
@@ -176,7 +176,15 @@ function get_group_access_evasionview($courseid) {
                             if ($user->count > 15 && $user->count <= 30){
                                 $sixteentothirty[] = ($user);
                             }else{
-                                $moreThan[]=($user);
+                                if ($user->count > 30 && $user->count <= 50){
+                                    $thirtyonetofifty[] = ($user);
+                                }else{
+                                    if ($user->count > 50 && $user->count <= 99){
+                                    $fiftyonetoninetynine[] = ($user);
+                                }else{
+                                    $moreThan[]=($user);
+                                }
+                                }
                             }
                         }
                     }
@@ -192,7 +200,9 @@ function get_group_access_evasionview($courseid) {
         $groups = array('noaccess'=>$noaccess, 
                     'onetofive'=>$onetofive,
                     'sixtofifteen'=>$sixtofifteen,
-                    'sixteentothirty'=>$sixteentothirty,
+                    'sixteentothirty'=>$sixteentothirty,                    
+                    'thirtyonetofifty' => $thirtyonetofifty,
+                    'fiftyonetoninetynine' => $fiftyonetoninetynine,
                     'moreThan'=>$moreThan,
                     );    
         
@@ -233,8 +243,12 @@ function grafchartjs($groups) {
                 }]
             },
             options: {
-                events: ['click','mousemove','touchmove']                                      
-            }
+                events: ['click','mousemove','touchmove'],
+                title:{
+                    display: true,
+                    text: 'Gráfico de notas dos estudantes'
+                }
+            }        
         });                
         
         document.getElementById('myChartPie').onclick = function(evt){                        
@@ -259,25 +273,20 @@ function grafchartjs($groups) {
 
 function grafbarchartjs($groups_access) {        
     
-    $noaccess = count($groups_access['noaccess']);
-//    echo $noaccess;    
-    $onetofive = count($groups_access['onetofive']);
-//    echo $onetofive;
-    $sixtofifteen = count($groups_access['sixtofifteen']);
-//    echo $sixtofifteen;
-    $morethan = count($groups_access['morethan']);
-//    echo $morethan;
+    $noaccess = count($groups_access['noaccess']);    
+    $onetofive = count($groups_access['onetofive']);    
+    $sixtofifteen = count($groups_access['sixtofifteen']);    
+    $sixteentothirty = count($groups_access['sixteentothirty']);    
+    $thirtyonetofifty = count($groups_access['thirtyonetofifty']);    
+    $fiftyonetoninetynine = count($groups_access['fiftyonetoninetynine']);        
+    $morethan = count($groups_access['morethan']);    
+        
     
     echo "<div style='width: 100%'>
             <div class='bar-chart'>
                 <canvas id='myChart' width='400' height='400'></canvas>                            
             </div>                        
-        </div>
-        
-        
-        <script src='Chart.min.js'>    
-        
-        </script>
+        </div>                        
 
         <script>
     
@@ -287,7 +296,7 @@ function grafbarchartjs($groups_access) {
     data: {                        
         datasets: [{                    
                     label: '0 ...',                   
-                    data: [4],
+                    data: [$noaccess],
                     backgroundColor: [
                         'rgba(255, 0, 0, 1)'                        
                     ],
@@ -297,7 +306,7 @@ function grafbarchartjs($groups_access) {
                     borderWidth: 1
                 },{                    
                     label: '1 - 5',                   
-                    data: [1],
+                    data: [$onetofive],
                     backgroundColor: [                        
                         'rgba(255, 106, 61, 1)'                        
                     ],
@@ -307,7 +316,7 @@ function grafbarchartjs($groups_access) {
                     borderWidth: 1
                 },{                    
                     label: '6 - 15',                   
-                    data: [7],
+                    data: [$sixtofifteen],
                     backgroundColor: [
                         'rgba(255, 203, 61, 1)'                        
                     ],
@@ -317,7 +326,7 @@ function grafbarchartjs($groups_access) {
                     borderWidth: 1
                 },{                    
                     label: '16 - 30',                   
-                    data: [6],
+                    data: [$sixteentothirty],
                     backgroundColor: [
                         'rgba(255, 235 , 59, 1)'                        
                     ],
@@ -327,7 +336,7 @@ function grafbarchartjs($groups_access) {
                     borderWidth: 1
                 },{                    
                     label: '31 - 50',                   
-                    data: [12],
+                    data: [$thirtyonetofifty],
                     backgroundColor: [
                         'rgba(161, 255, 61, 1)'                        
                     ],
@@ -337,7 +346,7 @@ function grafbarchartjs($groups_access) {
                     borderWidth: 1
                 },{                    
                     label: '51 - 99',                   
-                    data: [14],
+                    data: [$fiftyonetoninetynine],
                     backgroundColor: [
                         'rgba(100, 255, 0, 1)'                        
                     ],
@@ -347,7 +356,7 @@ function grafbarchartjs($groups_access) {
                     borderWidth: 1
                 },{                    
                     label: '100 ...',                   
-                    data: [8],
+                    data: [$morethan],
                     backgroundColor: [
                         'rgba(0, 255, 0, 1)'                        
                     ],
@@ -374,6 +383,10 @@ function grafbarchartjs($groups_access) {
                     beginAtZero: true
                 }
             }]
+        },
+        title:{
+            display: true,
+            text: 'Gráfico de acessos dos usuários'
         }
     }
 });
@@ -412,12 +425,11 @@ function grade_progress($courseid, $userid) {
 }
 
 function print_group_view($group, $courseid) {
+    echo $group;
     global $OUTPUT;
     
     $groups = get_group_grades_evasionview($courseid); 
-    $groups_access = get_group_access_evasionview($courseid);    
-    
-    var_dump($groups_access);
+    $groups_access = get_group_access_evasionview($courseid);            
     
     if ($group != null) {
         switch ($group) {
@@ -433,20 +445,26 @@ function print_group_view($group, $courseid) {
             case 'Null':
                 $group = $groups['null'];
                 break;
-            case 'noaccess':
-                $group = $groups_access['noaccess'];
+            case '0 ...':
+                $group = $groups_access['noaccess'];                
                 break;
-            case 'onetofive':
+            case '1 - 5':
                 $group = $groups_access['onetofive'];
                 break;
-            case 'sixtofifteen':
+            case '6 - 15':
                 $group = $groups_access['sixtofifteen'];
                 break;
-            case 'sixteentothirty':
+            case '16 - 30':
                 $group = $groups_access['sixteentothirty'];
                 break;
+            case '31 - 50':
+                $group = $groups_access['thirtyonetofifty'];
+                break;
+            case '51 - 99':
+                $group = $groups_access['fiftyonetoninetynine'];
+                break;
             case 'moreThan':
-                $group = $groups_access['sixteentothirty'];
+                $group = $groups_access['morethan'];
                 break;
             default:
                 echo "<h1>Nada para ser mostrado!</h1>";

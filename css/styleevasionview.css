@@ -217,7 +217,8 @@ div #grid-user-info div .user-info-title {
         background-color: #f5f5f5;
         border: solid 1px #9E9E9E;
         border-radius: 11px;
-        margin: 10px;
+        margin: auto;
+        width: -webkit-fill-available;
         padding: 2%;
         text-align: center;
     }    
@@ -225,7 +226,35 @@ div #grid-user-info div .user-info-title {
     .group-subtitle #good-group{
         color: #00e800;
     }
+    
+    .group-subtitle #group_no{
+        color: #ff0000;
+    }
 
+    .group-subtitle #group_one{
+        color: #ff6a3d;
+    }    
+    
+    .group-subtitle #group_six{
+        color: #ffcb3d;
+    }
+    
+    .group-subtitle #group_fifteen{
+        color: #ffeb3b;
+    }
+    
+    .group-subtitle #group_thirty{
+        color: #a1ff3d;
+    }
+    
+    .group-subtitle #group_fifty{
+        color: #64ff00;
+    }
+    
+    .group-subtitle #group_more{
+        color: #00ff00;
+    }
+    
     .group-subtitle #fair-group{
         color: #ffeb3b;
     }
