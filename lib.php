@@ -702,11 +702,32 @@ function print_user($courseid, $userid, $datainicial, $datafinal) {
             }
             echo "<div style='margin-bottom: 5px;'>";
 //            echo "<div $style class='card_access_user'>";
+            
             echo "<div class='card_access_user'>";
-            echo "<p style='background-color: whitesmoke;'>Evento</p>";
-            echo "<p style='background-color: whitesmoke;'>$access->eventname</p>";
-            echo "<p>Data</p>";
-            echo "<p>$access->evtdate</p>";
+            //echo "<p style='background-color: whitesmoke;'></p>";
+        if( $access->eventname == '\core\event\course_viewed'){
+            echo "<p >Última visualização do curso: $access->evtdate</p>";
+        }
+        if($access->eventname == '\mod_quiz\event\course_module_viewed'){
+            echo "<p >Última visualização do módulo: $access->evtdate</p>";
+        }
+        if($access->eventname == '\mod_quiz\event\attempt_started'){
+            echo "<p >Última tentativa realizada: $access->evtdate</p>";
+        }
+        if($access->eventname == '\mod_quiz\event\attempt_viewed'){
+            echo "<p >Última tentativa visualizada: $access->evtdate</p>";
+        }
+        if($access->eventname == '\mod_quiz\event\attempt_submitted'){
+            echo "<p >Última tentativa enviada: $access->evtdate</p>";
+        }
+        if($access->eventname == '\core\event\user_graded'){
+            echo "<p >Última nota recebida: $access->evtdate</p>";
+        }
+        //var_dump($access->eventname);
+            //echo "<p style='background-color: whitesmoke;'>$access->eventname </p>";
+            //var_dump($access);
+//            echo "<p>Data</p>";
+//            echo "<p>$access->evtdate</p>";
             echo "</div>";
             echo "</div>";
             $a++;
