@@ -67,7 +67,7 @@ function print_navigation_evasionview($params, $url) {
                                 echo "</div>";
 //                                var_dump($groups_access);
                                 echo "<div class='pie_info1'>";
-                                    echo "<div class='group-subtitle'><h5 id='group_no'>0 acesso</h5><p>Grupo de estudantes sem lançamento de notas.</p></div>";                                        
+                                    echo "<div class='group-subtitle'><h5 id='group_no'>0 acesso</h5><p>Estudantes sem lançamento de notas.</p></div>";                                        
                                     echo "<div class='group-subtitle'><h5 id='group_one'>De 1 á 5 acessos</h5><p>Estudantes com desempenho inferior a 50%.</p></div>";
                                     echo "<div class='group-subtitle'><h5 id='group_six'>De 6 á 15 acessos</h5><p>Estudantes com desempenho entre que 50 e 70%.</p></div>";
                                     echo "<div class='group-subtitle'><h5 id='group_fifteen'>De 15 á 30 acessos</h5><p>Estudantes com desempenho maior que 70%.</p></div>"; 
@@ -225,9 +225,11 @@ function grafchartjs($groups) {
         var myChart = new Chart(ctx, {
             type: 'pie',
             data: {
-                labels: ['', '', '', ''],
+                labels: ['Good', 'Fair', 'Poor', 'Null'],
+                
                 datasets: [{
                     label: 'Percentual de contribuição',
+                    
                     data: [$good, $fair, $poor, $null ],
                     backgroundColor: [
                         'rgba(0, 232, 0, 1)',
@@ -390,7 +392,8 @@ function grafbarchartjs($groups_access) {
         },
         title:{
             display: true,
-            text: 'Gráfico de acessos dos usuários'
+            text: 'Gráfico de acessos dos usuários',
+            fontSize: '22',
         }
     }
 });
