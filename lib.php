@@ -41,9 +41,11 @@ function print_navigation_evasionview($params, $url) {
                 echo "<div class='view-title'><h3>User Send Message</h3></div>";
                 echo $OUTPUT->action_link(new moodle_url($url), "Navegar para Home");
             } else {
+                echo "<h1 align='center'>Evasion View</h1>";
 //        Incluir aqui o que se espera quando o usuário entra no link principal do plugin
 //                    print_icon_evasionview('home');                    
                 echo "<div class='view-title'><strong><p>Selecione no gráfico para exibir os alunos do grupo de risco.</strong></p></div>";
+                
 //                    echo $OUTPUT->action_link(new moodle_url($url,array('group'=>3)),"Navegar para Grupo de Usuários");
                 if (search_users($params['id'])) {
                     $groups_grades = get_group_grades_evasionview($params['id']);                                         
@@ -53,10 +55,10 @@ function print_navigation_evasionview($params, $url) {
                                 grafchartjs($groups_grades);
                         echo "</div>";
                         echo "<div class='pie_info1'>";
-                            echo "<div class='group-subtitle'><h5 id='good-group'>Good Group</h5><p>Grupo de estudantes com desempenho maior que 70%.</p></div>";
-                            echo "<div class='group-subtitle'><h5 id='fair-group'>Fair Group</h5><p>Grupo de estudantes com desempenho entre que 50 e 70%.</p></div>";
-                            echo "<div class='group-subtitle'><h5 id='poor-group'>Poor Group</h5><p>Grupo de estudantes com desempenho inferior a 50%.</p></div>";
-                            echo "<div class='group-subtitle'><h5 id='null-group'>Null Group</h5><p>Grupo de estudantes sem lançamento de notas.</p></div>";
+                            echo "<div class='group-subtitle'><h5 id='good-group'>Acima de média</h5><p>Estudantes com desempenho maior que 70%.</p></div>";
+                            echo "<div class='group-subtitle'><h5 id='fair-group'>Se aproximando da média</h5><p>Estudantes com desempenho entre que 50 e 70%.</p></div>";
+                            echo "<div class='group-subtitle'><h5 id='poor-group'>Abaixo da média</h5><p>Estudantes com desempenho inferior a 50%.</p></div>";
+                            echo "<div class='group-subtitle'><h5 id='null-group'>Alunos que não fizeram atividades</h5><p>Estudantes sem lançamento de notas.</p></div>";
                         echo "</div>";
                     echo "</div>";
                     echo "<div id='container_access' style='border-top: 2px solid lightgrey;'>";                                
@@ -66,12 +68,12 @@ function print_navigation_evasionview($params, $url) {
 //                                var_dump($groups_access);
                                 echo "<div class='pie_info1'>";
                                     echo "<div class='group-subtitle'><h5 id='group_no'>0 acesso</h5><p>Grupo de estudantes sem lançamento de notas.</p></div>";                                        
-                                    echo "<div class='group-subtitle'><h5 id='group_one'>De 1 á 5 acessos</h5><p>Grupo de estudantes com desempenho inferior a 50%.</p></div>";
-                                    echo "<div class='group-subtitle'><h5 id='group_six'>De 6 á 15 acessos</h5><p>Grupo de estudantes com desempenho entre que 50 e 70%.</p></div>";
-                                    echo "<div class='group-subtitle'><h5 id='group_fifteen'>De 15 á 30 acessos</h5><p>Grupo de estudantes com desempenho maior que 70%.</p></div>"; 
-                                    echo "<div class='group-subtitle'><h5 id='group_thirty'>De 31 á 50 acessos</h5><p>Grupo de estudantes sem lançamento de notas.</p></div>";    
-                                    echo "<div class='group-subtitle'><h5 id='group_fifty'>De 51 á 99 acessos</h5><p>Grupo de estudantes sem lançamento de notas.</p></div>";    
-                                    echo "<div class='group-subtitle'><h5 id='group_more'>Mais 100 acessos</h5><p>Grupo de estudantes sem lançamento de notas.</p></div>";    
+                                    echo "<div class='group-subtitle'><h5 id='group_one'>De 1 á 5 acessos</h5><p>Estudantes com desempenho inferior a 50%.</p></div>";
+                                    echo "<div class='group-subtitle'><h5 id='group_six'>De 6 á 15 acessos</h5><p>Estudantes com desempenho entre que 50 e 70%.</p></div>";
+                                    echo "<div class='group-subtitle'><h5 id='group_fifteen'>De 15 á 30 acessos</h5><p>Estudantes com desempenho maior que 70%.</p></div>"; 
+                                    echo "<div class='group-subtitle'><h5 id='group_thirty'>De 31 á 50 acessos</h5><p>Estudantes sem lançamento de notas.</p></div>";    
+                                    echo "<div class='group-subtitle'><h5 id='group_fifty'>De 51 á 99 acessos</h5><p>Estudantes sem lançamento de notas.</p></div>";    
+                                    echo "<div class='group-subtitle'><h5 id='group_more'>Mais 100 acessos</h5><p>Estudantes sem lançamento de notas.</p></div>";    
                                 echo "</div>";
                     echo "</div>";
                 } else {
@@ -223,7 +225,7 @@ function grafchartjs($groups) {
         var myChart = new Chart(ctx, {
             type: 'pie',
             data: {
-                labels: ['Good', 'Fair', 'Poor', 'Null'],
+                labels: ['', '', '', ''],
                 datasets: [{
                     label: 'Percentual de contribuição',
                     data: [$good, $fair, $poor, $null ],
@@ -246,7 +248,9 @@ function grafchartjs($groups) {
                 events: ['click','mousemove','touchmove'],
                 title:{
                     display: true,
-                    text: 'Gráfico de notas dos estudantes'
+                    text: 'Gráfico do desempenho de notas dos alunos',
+                    fontSize: '22'
+                    
                 }
             }        
         });                
