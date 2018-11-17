@@ -21,16 +21,18 @@ function print_navigation_evasionview($params, $url) {
     if ($params['group']) {
 //            print_icon_evasionview('group');
         echo "<div class='view-title'>
+            
               <strong><p>Selecione um usuário para detalhar suas informações.</strong>
               </p></div>";                
         
-        
+        echo "<button onclick='history.go(-1);'>Voltar</button>";
         print_group_view($params['group'], $params['id']);
         } else {
 //        Incluir aqui o que se espera quando o usuário requer a visualização das informações sobre um usuário em específico            
         if ($params['userinfo']) {
 //            print_icon_evasionview('userinfo');  
             echo "<div class='view-title'><strong><p>Detalhamento dos dados de notas, interações e acessos do usuário.</strong></p></div>";
+            echo "<button onclick='history.go(-1);'>Voltar</button>";
 
             print_user($params['id'], $params['userinfo'], $_POST['d_inicial'], $_POST['d_final']);
 //            echo $OUTPUT->action_link(new moodle_url($url, array('usersend'=>$params['userinfo'])), "Navegar para enviar mensagem");            
@@ -432,7 +434,7 @@ function grade_progress($courseid, $userid) {
 }
 
 function print_group_view($group, $courseid) {
-    echo $group;
+    //echo $group;
     global $OUTPUT;
     
     $groups = get_group_grades_evasionview($courseid); 
@@ -567,13 +569,15 @@ function print_simple_user($courseid, $userid, $userfirstname, $userlastname, $u
     foreach ($useraccess as $value) {
         $access = $value->count;
     }
+    //$userid
+    //$userprogress
     echo "<div id='grid-user-info'>
-                                <div id='user-info-title'><strong>User id: $userid</strong>
-                                    <div id='user-info'>First Name: $userfirstname</div></div>
+                                <div id='user-info-title'><strong>Estudante: $userfirstname $userlastname</strong>
+                                    <div id='user-info'> </div></div>
                                 <div id='contents'>                                                                                                
-                                <div id='user-info'>Last Name: $userlastname</div>
-                                <div id='user-info'>Progresso: $userprogress</div>
-                                <div id='user-info'>Acessos durante o curso: $access</div>                                
+                                <div id='user-info'></div>
+                                <div id='user-info'></div>
+                                <div id='user-info'>Quantidade de acessos: $access</div>                                
                                 <div id='user-info-return'>
                                 ";
     echo $OUTPUT->action_link(new moodle_url($url, array('id' => $courseid, 'userinfo' => $userid)), "Detalhar dados");
@@ -599,7 +603,7 @@ function print_user($courseid, $userid, $datainicial, $datafinal) {
     $mindate = $startdatecourse[$courseid]->startdate;
     $maxdate = date("Y-m-d");
 
-    echo "<p onclick='clicou()' >Clique aqui!</p>";
+    //echo "<p onclick='clicou()' >Clique aqui!</p>";
 
 //  Resgata do banco as notas obtidas pelo usuário pesquisado
     $grade_user = get_grade_user($courseid, $userid, $datainicial, $datafinal);
@@ -617,16 +621,16 @@ function print_user($courseid, $userid, $datainicial, $datafinal) {
     echo "<table>
             <thead>
                 <tr>
-                    <th>Id</th>
-                    <th>Nome</th>
-                    <th>Sobrenome</th>                    
+                    
+                    <th>Estudante</th>
+                                      
                 </tr>
             </thead>
             <tbody>
                 <tr>
-                    <td>$user->id</td>
-                    <td>$user->firstname</td>
-                    <td>$user->lastname</td>                    
+                    
+                    <td>$user->firstname $user->lastname</td>
+                                      
                 </tr>
                 <tr>
                     <td></td>
