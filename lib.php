@@ -509,7 +509,7 @@ function print_group_view($group, $courseid) {
                 $progress = $user_progress->sum;
             }
             echo "<div style='overflow: scroll; max-height: 415px;'>";
-            for ($i = 0; $i < 4; $i++) {                
+            //for ($i = 0; $i < 4; $i++) {                
                 if($first_char){
                     if($first_char == 'all'){
                         print_simple_user($courseid, $user->id, $user->firstname, $user->lastname, $progress, $access_user);                                        
@@ -521,7 +521,7 @@ function print_group_view($group, $courseid) {
                     }else{                        
                         print_simple_user($courseid, $user->id, $user->firstname, $user->lastname, $progress, $access_user);                
                     }                    
-                }
+                //}
             echo "</div";
         }
     } else {
