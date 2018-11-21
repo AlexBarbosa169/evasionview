@@ -21,16 +21,18 @@ function print_navigation_evasionview($params, $url) {
     if ($params['group']) {
 //            print_icon_evasionview('group');
         echo "<div class='view-title'>
+            
               <strong><p>Selecione um usuário para detalhar suas informações.</strong>
               </p></div>";                
         
-        
+        echo "<button onclick='history.go(-1);'>Voltar</button>";
         print_group_view($params['group'], $params['id']);
         } else {
 //        Incluir aqui o que se espera quando o usuário requer a visualização das informações sobre um usuário em específico            
         if ($params['userinfo']) {
 //            print_icon_evasionview('userinfo');  
             echo "<div class='view-title'><strong><p>Detalhamento dos dados de notas, interações e acessos do usuário.</strong></p></div>";
+            echo "<button onclick='history.go(-1);'>Voltar</button>";
 
             print_user($params['id'], $params['userinfo'], $_POST['d_inicial'], $_POST['d_final']);
 //            echo $OUTPUT->action_link(new moodle_url($url, array('usersend'=>$params['userinfo'])), "Navegar para enviar mensagem");            
@@ -41,9 +43,11 @@ function print_navigation_evasionview($params, $url) {
                 echo "<div class='view-title'><h3>User Send Message</h3></div>";
                 echo $OUTPUT->action_link(new moodle_url($url), "Navegar para Home");
             } else {
+                echo "<h1 align='center'>Evasion View</h1>";
 //        Incluir aqui o que se espera quando o usuário entra no link principal do plugin
 //                    print_icon_evasionview('home');                    
                 echo "<div class='view-title'><strong><p>Selecione no gráfico para exibir os alunos do grupo de risco.</strong></p></div>";
+                
 //                    echo $OUTPUT->action_link(new moodle_url($url,array('group'=>3)),"Navegar para Grupo de Usuários");
                 if (search_users($params['id'])) {
                     $groups_grades = get_group_grades_evasionview($params['id']);                                         
@@ -53,10 +57,10 @@ function print_navigation_evasionview($params, $url) {
                                 grafchartjs($groups_grades);
                         echo "</div>";
                         echo "<div class='pie_info1'>";
-                            echo "<div class='group-subtitle'><h5 id='good-group'>Good Group</h5><p>Grupo de estudantes com desempenho maior que 70%.</p></div>";
-                            echo "<div class='group-subtitle'><h5 id='fair-group'>Fair Group</h5><p>Grupo de estudantes com desempenho entre que 50 e 70%.</p></div>";
-                            echo "<div class='group-subtitle'><h5 id='poor-group'>Poor Group</h5><p>Grupo de estudantes com desempenho inferior a 50%.</p></div>";
-                            echo "<div class='group-subtitle'><h5 id='null-group'>Null Group</h5><p>Grupo de estudantes sem lançamento de notas.</p></div>";
+                            echo "<div class='group-subtitle'><h5 id='good-group'>Acima de média</h5><p>Estudantes com desempenho maior que 70%.</p></div>";
+                            echo "<div class='group-subtitle'><h5 id='fair-group'>Se aproximando da média</h5><p>Estudantes com desempenho entre que 50 e 70%.</p></div>";
+                            echo "<div class='group-subtitle'><h5 id='poor-group'>Abaixo da média</h5><p>Estudantes com desempenho inferior a 50%.</p></div>";
+                            echo "<div class='group-subtitle'><h5 id='null-group'>Alunos que não fizeram atividades</h5><p>Estudantes sem lançamento de notas.</p></div>";
                         echo "</div>";
                     echo "</div>";
                     echo "<div id='container_access' style='border-top: 2px solid lightgrey;'>";                                
@@ -65,13 +69,13 @@ function print_navigation_evasionview($params, $url) {
                                 echo "</div>";
 //                                var_dump($groups_access);
                                 echo "<div class='pie_info1'>";
-                                    echo "<div class='group-subtitle'><h5 id='group_no'>0 acesso</h5><p>Grupo de estudantes sem lançamento de notas.</p></div>";                                        
-                                    echo "<div class='group-subtitle'><h5 id='group_one'>De 1 á 5 acessos</h5><p>Grupo de estudantes com desempenho inferior a 50%.</p></div>";
-                                    echo "<div class='group-subtitle'><h5 id='group_six'>De 6 á 15 acessos</h5><p>Grupo de estudantes com desempenho entre que 50 e 70%.</p></div>";
-                                    echo "<div class='group-subtitle'><h5 id='group_fifteen'>De 15 á 30 acessos</h5><p>Grupo de estudantes com desempenho maior que 70%.</p></div>"; 
-                                    echo "<div class='group-subtitle'><h5 id='group_thirty'>De 31 á 50 acessos</h5><p>Grupo de estudantes sem lançamento de notas.</p></div>";    
-                                    echo "<div class='group-subtitle'><h5 id='group_fifty'>De 51 á 99 acessos</h5><p>Grupo de estudantes sem lançamento de notas.</p></div>";    
-                                    echo "<div class='group-subtitle'><h5 id='group_more'>Mais 100 acessos</h5><p>Grupo de estudantes sem lançamento de notas.</p></div>";    
+                                    echo "<div class='group-subtitle'><h5 id='group_no'>0 acesso</h5><p>Estudantes sem lançamento de notas.</p></div>";                                        
+                                    echo "<div class='group-subtitle'><h5 id='group_one'>De 1 á 5 acessos</h5><p>Estudantes com desempenho inferior a 50%.</p></div>";
+                                    echo "<div class='group-subtitle'><h5 id='group_six'>De 6 á 15 acessos</h5><p>Estudantes com desempenho entre que 50 e 70%.</p></div>";
+                                    echo "<div class='group-subtitle'><h5 id='group_fifteen'>De 15 á 30 acessos</h5><p>Estudantes com desempenho maior que 70%.</p></div>"; 
+                                    echo "<div class='group-subtitle'><h5 id='group_thirty'>De 31 á 50 acessos</h5><p>Estudantes sem lançamento de notas.</p></div>";    
+                                    echo "<div class='group-subtitle'><h5 id='group_fifty'>De 51 á 99 acessos</h5><p>Estudantes sem lançamento de notas.</p></div>";    
+                                    echo "<div class='group-subtitle'><h5 id='group_more'>Mais 100 acessos</h5><p>Estudantes sem lançamento de notas.</p></div>";    
                                 echo "</div>";
                     echo "</div>";
                 } else {
@@ -224,8 +228,10 @@ function grafchartjs($groups) {
             type: 'pie',
             data: {
                 labels: ['Good', 'Fair', 'Poor', 'Null'],
+                
                 datasets: [{
                     label: 'Percentual de contribuição',
+                    
                     data: [$good, $fair, $poor, $null ],
                     backgroundColor: [
                         'rgba(0, 232, 0, 1)',
@@ -246,7 +252,9 @@ function grafchartjs($groups) {
                 events: ['click','mousemove','touchmove'],
                 title:{
                     display: true,
-                    text: 'Gráfico de notas dos estudantes'
+                    text: 'Gráfico do desempenho de notas dos alunos',
+                    fontSize: '22'
+                    
                 }
             }        
         });                
@@ -386,7 +394,8 @@ function grafbarchartjs($groups_access) {
         },
         title:{
             display: true,
-            text: 'Gráfico de acessos dos usuários'
+            text: 'Gráfico de acessos dos usuários',
+            fontSize: '22',
         }
     }
 });
@@ -425,7 +434,7 @@ function grade_progress($courseid, $userid) {
 }
 
 function print_group_view($group, $courseid) {
-    echo $group;
+    //echo $group;
     global $OUTPUT;
     
     $groups = get_group_grades_evasionview($courseid); 
@@ -500,7 +509,7 @@ function print_group_view($group, $courseid) {
                 $progress = $user_progress->sum;
             }
             echo "<div style='overflow: scroll; max-height: 415px;'>";
-            for ($i = 0; $i < 4; $i++) {                
+            //for ($i = 0; $i < 4; $i++) {                
                 if($first_char){
                     if($first_char == 'all'){
                         print_simple_user($courseid, $user->id, $user->firstname, $user->lastname, $progress, $access_user);                                        
@@ -512,7 +521,7 @@ function print_group_view($group, $courseid) {
                     }else{                        
                         print_simple_user($courseid, $user->id, $user->firstname, $user->lastname, $progress, $access_user);                
                     }                    
-                }
+                //}
             echo "</div";
         }
     } else {
@@ -560,13 +569,15 @@ function print_simple_user($courseid, $userid, $userfirstname, $userlastname, $u
     foreach ($useraccess as $value) {
         $access = $value->count;
     }
+    //$userid
+    //$userprogress
     echo "<div id='grid-user-info'>
-                                <div id='user-info-title'><strong>User id: $userid</strong>
-                                    <div id='user-info'>First Name: $userfirstname</div></div>
+                                <div id='user-info-title'><strong>Estudante: $userfirstname $userlastname</strong>
+                                    <div id='user-info'> </div></div>
                                 <div id='contents'>                                                                                                
-                                <div id='user-info'>Last Name: $userlastname</div>
-                                <div id='user-info'>Progresso: $userprogress</div>
-                                <div id='user-info'>Acessos durante o curso: $access</div>                                
+                                <div id='user-info'></div>
+                                <div id='user-info'></div>
+                                <div id='user-info'>Quantidade de acessos: $access</div>                                
                                 <div id='user-info-return'>
                                 ";
     echo $OUTPUT->action_link(new moodle_url($url, array('id' => $courseid, 'userinfo' => $userid)), "Detalhar dados");
@@ -592,7 +603,7 @@ function print_user($courseid, $userid, $datainicial, $datafinal) {
     $mindate = $startdatecourse[$courseid]->startdate;
     $maxdate = date("Y-m-d");
 
-    echo "<p onclick='clicou()' >Clique aqui!</p>";
+    //echo "<p onclick='clicou()' >Clique aqui!</p>";
 
 //  Resgata do banco as notas obtidas pelo usuário pesquisado
     $grade_user = get_grade_user($courseid, $userid, $datainicial, $datafinal);
@@ -610,16 +621,16 @@ function print_user($courseid, $userid, $datainicial, $datafinal) {
     echo "<table>
             <thead>
                 <tr>
-                    <th>Id</th>
-                    <th>Nome</th>
-                    <th>Sobrenome</th>                    
+                    
+                    <th>Estudante</th>
+                                      
                 </tr>
             </thead>
             <tbody>
                 <tr>
-                    <td>$user->id</td>
-                    <td>$user->firstname</td>
-                    <td>$user->lastname</td>                    
+                    
+                    <td>$user->firstname $user->lastname</td>
+                                      
                 </tr>
                 <tr>
                     <td></td>
@@ -691,11 +702,32 @@ function print_user($courseid, $userid, $datainicial, $datafinal) {
             }
             echo "<div style='margin-bottom: 5px;'>";
 //            echo "<div $style class='card_access_user'>";
+            
             echo "<div class='card_access_user'>";
-            echo "<p style='background-color: whitesmoke;'>Evento</p>";
-            echo "<p style='background-color: whitesmoke;'>$access->eventname</p>";
-            echo "<p>Data</p>";
-            echo "<p>$access->evtdate</p>";
+            //echo "<p style='background-color: whitesmoke;'></p>";
+        if( $access->eventname == '\core\event\course_viewed'){
+            echo "<p >Última visualização do curso: $access->evtdate</p>";
+        }
+        if($access->eventname == '\mod_quiz\event\course_module_viewed'){
+            echo "<p >Última visualização do módulo: $access->evtdate</p>";
+        }
+        if($access->eventname == '\mod_quiz\event\attempt_started'){
+            echo "<p >Última tentativa realizada: $access->evtdate</p>";
+        }
+        if($access->eventname == '\mod_quiz\event\attempt_viewed'){
+            echo "<p >Última tentativa visualizada: $access->evtdate</p>";
+        }
+        if($access->eventname == '\mod_quiz\event\attempt_submitted'){
+            echo "<p >Última tentativa enviada: $access->evtdate</p>";
+        }
+        if($access->eventname == '\core\event\user_graded'){
+            echo "<p >Última nota recebida: $access->evtdate</p>";
+        }
+        //var_dump($access->eventname);
+            //echo "<p style='background-color: whitesmoke;'>$access->eventname </p>";
+            //var_dump($access);
+//            echo "<p>Data</p>";
+//            echo "<p>$access->evtdate</p>";
             echo "</div>";
             echo "</div>";
             $a++;
