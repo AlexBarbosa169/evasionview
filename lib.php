@@ -563,11 +563,10 @@ function grade_progress($courseid, $userid) {
 }
 
 function print_group_view($group, $courseid) {
-    //echo $group;
     global $OUTPUT;
     
-    $groups = get_group_grades_evasionview($courseid); 
-    $groups_access = get_group_access_evasionview($courseid);            
+    $groups = get_group_grades_evasionview($courseid);
+    $groups_interactions = get_group_interactions_evasionview($courseid);
     
     if ($group != null) {
         switch ($group) {
@@ -583,34 +582,24 @@ function print_group_view($group, $courseid) {
             case 'Null':
                 $group = $groups['null'];
                 break;
-            case '0 ...':
-                $group = $groups_access['noaccess'];                
+            case 'Nenhuma interação':
+                $group = $groups_interactions['no_interactions'];
                 break;
-            case '1 - 5':
-                $group = $groups_access['onetofive'];
+            case 'Uma interação':
+                $group = $groups_interactions['only_one'];
                 break;
-            case '6 - 15':
-                $group = $groups_access['sixtofifteen'];
+            case 'Duas a cinco interações':
+                $group = $groups_interactions['two_to_five'];
                 break;
-            case '16 - 30':
-                $group = $groups_access['sixteentothirty'];
-                break;
-            case '31 - 50':
-                $group = $groups_access['thirtyonetofifty'];
-                break;
-            case '51 - 99':
-                $group = $groups_access['fiftyonetoninetynine'];
-                break;
-            case 'moreThan':
-                $group = $groups_access['morethan'];
+            case 'Mais de cinco interações':
+                $group = $groups_interactions['more_than_five'];
                 break;
             default:
                 echo "<h1>Nada para ser mostrado!</h1>";
                 break;
         }
-        
+
         $letras = array("all"=>"all");
-        
         foreach ($group as $user) {
             $l = substr($user->firstname,0,1); 
             $letras["$l"] = "$l";
@@ -631,26 +620,24 @@ function print_group_view($group, $courseid) {
             $first_char = $_POST['first_char'];
         }
 
-        foreach ($group as $user) {
+        foreach ($group as $user) {    
             $access_user = get_access_user($courseid, $user->id, null);
             $progresses = grade_progress($courseid, $user->id);
             foreach ($progresses as $user_progress) {
-                $progress = $user_progress->sum;
+                $progress = $user_progress->sum; 
             }
-            echo "<div style='overflow: scroll; max-height: 415px;'>";
-            //for ($i = 0; $i < 4; $i++) {                
-                if($first_char){
-                    if($first_char == 'all'){
+            echo "<div style='overflow: scroll; max-height: 415px;'>";               
+            if($first_char){
+                if($first_char == 'all'){
+                    print_simple_user($courseid, $user->id, $user->firstname, $user->lastname, $progress, $access_user);                                        
+                }else{
+                    if(substr($user->firstname,0,1) == $first_char){
                         print_simple_user($courseid, $user->id, $user->firstname, $user->lastname, $progress, $access_user);                                        
-                    }else{
-                        if(substr($user->firstname,0,1) == $first_char){
-                           print_simple_user($courseid, $user->id, $user->firstname, $user->lastname, $progress, $access_user);                                        
-                           }   
-                    }                                     
-                    }else{                        
-                        print_simple_user($courseid, $user->id, $user->firstname, $user->lastname, $progress, $access_user);                
-                    }                    
-                //}
+                        }   
+                }                                     
+            }else{                        
+                print_simple_user($courseid, $user->id, $user->firstname, $user->lastname, $progress, $access_user);                
+            }                    
             echo "</div";
         }
     } else {
@@ -739,6 +726,8 @@ function print_user($courseid, $userid, $datainicial, $datafinal) {
 
 //  Resgata do banco os acessos do usuário no curso
     $access_user = get_list_access_user($courseid, $userid, $datainicial, $datafinal);
+    
+    $forum_user = get_list_forum_user($courseid, $userid, $datainicial, $datafinal);
 
     $options = array('size' => 100);
 
@@ -870,6 +859,33 @@ function print_user($courseid, $userid, $datainicial, $datafinal) {
                            </div>";
     }
 //            echo "</div>";
+    echo "<h4>Interações</h4>";
+    if ($forum_user) {
+        echo "<div id='table-forum-user'>";
+        $a = 0;
+        foreach ($forum_user as $key => $forum) {
+            $style = "";
+            if ($a % 2) {
+                $style = "style='background-color: transparent;'";
+            }
+            echo "<div style='margin-bottom: 5px;'>";
+            echo "<div class='card_access_user'>";
+            echo "<p style='background-color: whitesmoke;'>FÃ³rum</p>";
+            echo "<p style='background-color: whitesmoke;'>$forum->forum_name</p>";
+            echo "<p>Quantidade de interaÃ§Ãµes</p>";
+            echo "<p>$forum->interacoes</p>";
+            echo "</div>";
+            echo "</div>";
+            $a++;
+        }
+        echo "</div>";
+    } else {
+        echo "<div style='text-align:center'>                                
+                                <div class='alert'>
+                                    Não há interações no período selecionado!
+                                </div>                
+                           </div>";
+    }
 }
 
 function get_access_user($courseid, $userid, $filter) {
