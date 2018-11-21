@@ -52,6 +52,7 @@ function print_navigation_evasionview($params, $url) {
                 if (search_users($params['id'])) {
                     $groups_grades = get_group_grades_evasionview($params['id']);                                         
                     $groups_access = get_group_access_evasionview($params['id']);                                                             
+                    $groups_interactions = get_group_interactions_evasionview($params['id']);                    
                     echo "<div id='container_index' >";
                         echo "<div id='piechart' >";
                                 grafchartjs($groups_grades);
@@ -77,6 +78,18 @@ function print_navigation_evasionview($params, $url) {
                                     echo "<div class='group-subtitle'><h5 id='group_fifty'>De 51 á 99 acessos</h5><p>Estudantes sem lançamento de notas.</p></div>";    
                                     echo "<div class='group-subtitle'><h5 id='group_more'>Mais 100 acessos</h5><p>Estudantes sem lançamento de notas.</p></div>";    
                                 echo "</div>";
+                    echo "</div>";
+                    echo "<div id='container_access' style='border-top: 2px solid lightgrey;'>";                              
+                        echo "<div id='piechart' >";                               
+                            interactionsgraf($groups_interactions);
+                        echo "</div>";
+//                                var_dump($groups_access);
+                        echo "<div class='pie_info1'>";
+                            echo "<div class='group-subtitle'><h5 id='poor-group'>Nenhuma interaÃ§Ã£o</h5><p>Grupo de estudantes sem interaÃ§Ãµes nos fÃ³runs.</p></div>";
+                            echo "<div class='group-subtitle'><h5 id='middle-group'>Uma interaÃ§Ã£o</h5><p>Grupo de estudantes com uma interaÃ§Ã£o nos fÃ³runs.</p></div>";
+                            echo "<div class='group-subtitle'><h5 id='fair-group'>Duas a cinco interaÃ§Ãµes</h5><p>Grupo de estudantes com duas a cinco interaÃ§Ãµes nos fÃ³runs.</p></div>";
+                            echo "<div class='group-subtitle'><h5 id='good-group'>Mais de cinco interaÃ§Ãµes</h5><p>Grupo de estudantes com mais de cinco interaÃ§Ãµes nos fÃ³runs.</p></div>";                                    
+                        echo "</div>";
                     echo "</div>";
                 } else {
                     echo "<div style='text-align:center'>
@@ -151,6 +164,43 @@ function get_group_grades_evasionview($courseid) {
         echo "Não Tem Alunos";
     }
     return $groups;
+}
+
+function get_group_interactions_evasionview($courseid){
+    $usersCourse = search_users($courseid);    
+    $no_interactions = array();    
+    $only_one = array();
+    $two_to_five = array();
+    $more_than_five = array();           
+    
+    foreach ($usersCourse as $user) {                                             
+            //echo "$user->firstname: ";            
+            $user_interactions = get_forum_user($courseid, $user->id);
+            if($user_interactions){
+                foreach ($user_interactions as $user) {
+                    if ($user->interacoes == 1){
+                        $only_one[] = ($user);
+                    }else if($user->interacoes >= 2 && $user->interacoes <= 5){
+                        $two_to_five[] = ($user);
+                    }else if($user->interacoes > 5){
+                        $more_than_five[] = ($user);
+                    }
+                    #echo "\n".$user->interacoes;
+                }   
+            }else{
+//                echo 0;
+                $no_interactions[] = ($user);
+            }   
+//            echo " acessos.<br>";
+        }  
+        
+        $groups = array('no_interactions'=>$no_interactions, 
+                    'only_one'=>$only_one,
+                    'two_to_five'=>$two_to_five,
+                    'more_than_five'=>$more_than_five,
+                    );    
+        
+        return $groups;     
 }
 
 function get_group_access_evasionview($courseid) {
@@ -277,6 +327,85 @@ function grafchartjs($groups) {
             }
         };
         </script>";
+}
+
+function interactionsgraf($groups) {
+    $no_interactions = count($groups['no_interactions']);
+    $only_one = count($groups['only_one']);
+    $two_to_five = count($groups['two_to_five']);
+    $more_than_five = count($groups['more_than_five']);
+    //$null = count($groups['null']);    
+    
+    echo "<canvas id='myChartPie2' width='400' height='400'></canvas>";
+    echo "<script src='js/Chart.min.js'></script>";
+
+    echo "<script>
+        var ctx = document.getElementById('myChartPie2').getContext('2d');
+        var myChart = new Chart(ctx, {
+            type: 'pie',
+            data: {
+                labels: ['Nenhuma interação', 'Uma interação', 'Duas a cinco interação', 'Mais de cinco interações'],
+                datasets: [{
+                    label: 'Percentual de contribuição',
+                    data: [$no_interactions, $only_one, $two_to_five, $more_than_five],
+                    backgroundColor: [
+                        'rgba(200, 0, 0, 1)',
+                        'rgba(255, 128, 0, 1)',
+                        'rgba(255, 235 , 59, 1)',
+                        'rgba(0, 232, 0, 1)'                       
+                    ],
+                    borderColor: [
+                        'rgba(255, 255, 255,1)',
+                        'rgba(255, 255, 255, 1)',
+                        'rgba(255, 255, 255, 1)',
+                        'rgba(255, 255, 255, 1)'                        
+                    ],
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                events: ['click','mousemove','touchmove']                                      
+            }
+        });                
+        
+        document.getElementById('myChartPie2').onclick = function(evt){                        
+            var activeElements = myChart.getElementsAtEvent(evt);            
+                
+        if(activeElements.length > 0)
+            {
+            var clickedElementindex = activeElements[0]['_index'];      
+            
+            var label = myChart.data.labels[clickedElementindex];            
+//            var value = myChart.data.datasets[0].data[clickedElementindex];      
+//            document.getElementById('next').style.setProperty('visibility','visible');
+                                    var parsedUrl = new URL(window.location.href);
+                                    console.log(parsedUrl);                                    
+                                    parsedUrl.searchParams.set('group',label);                                    
+                                    window.location.href = parsedUrl;
+                console.log(label);
+            }
+        };
+        </script>";
+}
+
+function get_forum_user($courseid, $userid) {
+    global $DB;
+    global $OUTPUT;
+
+    $sql = "SELECT u.id, u.firstname, u.lastname, count(fp.message) as interacoes, c.shortname as curso
+            FROM public.mdl_user u 
+            join public.mdl_forum_posts fp on u.id = fp.userid
+            join public.mdl_forum_discussions fd on fd.id = fp.discussion
+            join public.mdl_forum f on f.id = fd.forum
+            join public.mdl_course c on c.id = f.course
+            WHERE c.id = $courseid 
+            and u.id = $userid
+            and to_timestamp(fp.created) >= now() - interval '30 days'
+            GROUP BY u.id, u.firstname, u.lastname, c.shortname";
+
+    $access = $DB->get_records_sql($sql);
+
+    return $access;
 }
 
 function grafbarchartjs($groups_access) {        
@@ -813,4 +942,32 @@ function get_course_start_date($courseid) {
     $startdate = $DB->get_records_sql($sql);
 
     return $startdate;
+}
+
+function get_list_forum_user($courseid, $userid, $datainicial, $datafinal){
+    global $DB;
+    global $OUTPUT;
+
+    if ($datainicial != null) {
+        $mindatefilter = "and to_timestamp(fp.created) >= to_timestamp('$datainicial', 'YYYY-MM-DD')";
+    }
+
+    if ($datafinal != null) {
+        $maxdatefiilter = "and to_timestamp(fp.created) <= to_timestamp('$datafinal', 'YYYY-MM-DD')";
+    }
+
+    $sql = "SELECT f.name as forum_name, count(fp.message) as interacoes
+            FROM public.mdl_user u 
+            join public.mdl_forum_posts fp on u.id = fp.userid
+            join public.mdl_forum_discussions fd on fd.id = fp.discussion
+            join public.mdl_forum f on f.id = fd.forum
+            WHERE u.id = $userid
+            $mindatefilter
+            $maxdatefiilter
+            and to_timestamp(fp.created) >= now() - interval '30 days'
+            GROUP BY f.name";
+
+    $access = $DB->get_records_sql($sql);
+
+    return $access;
 }
