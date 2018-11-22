@@ -567,6 +567,7 @@ function print_group_view($group, $courseid) {
     
     $groups = get_group_grades_evasionview($courseid);
     $groups_interactions = get_group_interactions_evasionview($courseid);
+    $groups_access = get_group_access_evasionview($courseid);            
     
     if ($group != null) {
         switch ($group) {
@@ -581,6 +582,27 @@ function print_group_view($group, $courseid) {
                 break;
             case 'Null':
                 $group = $groups['null'];
+                break;
+            case '0 ...':
+                $group = $groups_access['noaccess'];                
+                break;
+            case '1 - 5':
+                $group = $groups_access['onetofive'];
+                break;
+            case '6 - 15':
+                $group = $groups_access['sixtofifteen'];
+                break;
+            case '16 - 30':
+                $group = $groups_access['sixteentothirty'];
+                break;
+            case '31 - 50':
+                $group = $groups_access['thirtyonetofifty'];
+                break;
+            case '51 - 99':
+                $group = $groups_access['fiftyonetoninetynine'];
+                break;
+            case 'moreThan':
+                $group = $groups_access['morethan'];
                 break;
             case 'Nenhuma interação':
                 $group = $groups_interactions['no_interactions'];
