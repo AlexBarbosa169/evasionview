@@ -85,10 +85,10 @@ function print_navigation_evasionview($params, $url) {
                         echo "</div>";
 //                                var_dump($groups_access);
                         echo "<div class='pie_info1'>";
-                            echo "<div class='group-subtitle'><h5 id='poor-group'>Nenhuma interaÃ§Ã£o</h5><p>Grupo de estudantes sem interaÃ§Ãµes nos fÃ³runs.</p></div>";
-                            echo "<div class='group-subtitle'><h5 id='middle-group'>Uma interaÃ§Ã£o</h5><p>Grupo de estudantes com uma interaÃ§Ã£o nos fÃ³runs.</p></div>";
-                            echo "<div class='group-subtitle'><h5 id='fair-group'>Duas a cinco interaÃ§Ãµes</h5><p>Grupo de estudantes com duas a cinco interaÃ§Ãµes nos fÃ³runs.</p></div>";
-                            echo "<div class='group-subtitle'><h5 id='good-group'>Mais de cinco interaÃ§Ãµes</h5><p>Grupo de estudantes com mais de cinco interaÃ§Ãµes nos fÃ³runs.</p></div>";                                    
+                            echo "<div class='group-subtitle'><h5 id='poor-group'>Nenhuma interação</h5><p>Grupo de estudantes sem interações nos fóruns.</p></div>";
+                            echo "<div class='group-subtitle'><h5 id='group_one'>Uma interação</h5><p>Grupo de estudantes com uma interação nos fóruns.</p></div>";
+                            echo "<div class='group-subtitle'><h5 id='fair-group'>Duas a cinco interações</h5><p>Grupo de estudantes com duas a cinco interações nos fóruns.</p></div>";
+                            echo "<div class='group-subtitle'><h5 id='good-group'>Mais de cinco interações</h5><p>Grupo de estudantes com mais de cinco interações nos fóruns.</p></div>";                                    
                         echo "</div>";
                     echo "</div>";
                 } else {
@@ -336,54 +336,97 @@ function interactionsgraf($groups) {
     $more_than_five = count($groups['more_than_five']);
     //$null = count($groups['null']);    
     
-    echo "<canvas id='myChartPie2' width='400' height='400'></canvas>";
-    echo "<script src='js/Chart.min.js'></script>";
-
-    echo "<script>
-        var ctx = document.getElementById('myChartPie2').getContext('2d');
+    echo "<div style='width: 100%'>
+            <div class='bar-chart'>
+                <canvas id='myHorizontalBarChart' width='400' height='400'></canvas>                            
+            </div>                        
+        </div>
+    <script>
+        var ctx = document.getElementById('myHorizontalBarChart').getContext('2d');
         var myChart = new Chart(ctx, {
-            type: 'pie',
+            type: 'horizontalBar',
             data: {
-                labels: ['Nenhuma interação', 'Uma interação', 'Duas a cinco interação', 'Mais de cinco interações'],
                 datasets: [{
-                    label: 'Percentual de contribuição',
-                    data: [$no_interactions, $only_one, $two_to_five, $more_than_five],
+                    label: 'Nenhuma interação',
+                    data: [$no_interactions],
                     backgroundColor: [
-                        'rgba(200, 0, 0, 1)',
-                        'rgba(255, 128, 0, 1)',
-                        'rgba(255, 235 , 59, 1)',
-                        'rgba(0, 232, 0, 1)'                       
+                        'rgba(200, 0, 0, 0.2)',
                     ],
                     borderColor: [
-                        'rgba(255, 255, 255,1)',
-                        'rgba(255, 255, 255, 1)',
-                        'rgba(255, 255, 255, 1)',
-                        'rgba(255, 255, 255, 1)'                        
+                        'rgba(200, 0, 0, 1)',
                     ],
                     borderWidth: 1
+                },{
+                    label: 'Uma interação',
+                    data: [$only_one],
+                    backgroundColor: [
+                        'rgba(255, 128, 0, 0.2)',
+                    ],
+                    borderColor: [
+                        'rgba(255, 128, 0, 1)',
+                    ],
+                    borderWidth: 1
+                },{
+                    label: 'Duas a cinco interações',
+                    data: [$two_to_five],
+                    backgroundColor: [
+                        'rgba(255, 235 , 59, 0.2)',
+                    ],
+                    borderColor: [
+                        'rgba(255, 235 , 59, 1)',
+                    ],
+                    borderWidth: 1
+                },{
+                    label: 'Mais de cinco interações',
+                    data: [$more_than_five],
+                    backgroundColor: [
+                        'rgba(0, 232, 0, 0.2)'
+                    ],
+                    borderColor: [
+                        'rgba(0, 232, 0,1)',
+                    ],
+                    borderWidth: 1   
                 }]
             },
-            options: {
-                events: ['click','mousemove','touchmove']                                      
+        options: {
+            event:['click'],
+            animation: {
+               xAxis: true,
+            },  
+            responsive: true,        
+            legend: {
+                display: true,
+                labels: {                
+                    fontColor: 'rgb(255, 99, 132)'                
+                }
+            },
+            scales: {
+                xAxes: [{                
+                    ticks: {                    
+                        beginAtZero: true,
+                    }
+                }],
+            },
+            title:{
+                display: true,
+                text: 'Gráfico de interações dos usuários',
+                fontSize: '22',
             }
+        }
         });                
         
-        document.getElementById('myChartPie2').onclick = function(evt){                        
-            var activeElements = myChart.getElementsAtEvent(evt);            
-                
-        if(activeElements.length > 0)
-            {
-            var clickedElementindex = activeElements[0]['_index'];      
+        document.getElementById('myHorizontalBarChart').onclick = function(evt){                                    
+            var activeElements = myChart.getElementAtEvent(evt);                        
             
-            var label = myChart.data.labels[clickedElementindex];            
-//            var value = myChart.data.datasets[0].data[clickedElementindex];      
-//            document.getElementById('next').style.setProperty('visibility','visible');
-                                    var parsedUrl = new URL(window.location.href);
-                                    console.log(parsedUrl);                                    
-                                    parsedUrl.searchParams.set('group',label);                                    
-                                    window.location.href = parsedUrl;
-                console.log(label);
+            if(activeElements.length > 0)
+            {
+                var clickedElementindex = activeElements[0]['_datasetIndex'];            
+                label = myChart.data.datasets[clickedElementindex].label;
+                var parsedUrl = new URL(window.location.href);            
+                parsedUrl.searchParams.set('group',label);                                                
+                window.location.href = parsedUrl;          
             }
+            
         };
         </script>";
 }
