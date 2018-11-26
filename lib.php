@@ -935,9 +935,9 @@ function print_user($courseid, $userid, $datainicial, $datafinal) {
             }
             echo "<div style='margin-bottom: 5px;'>";
             echo "<div class='card_access_user'>";
-            echo "<p style='background-color: whitesmoke;'>FÃ³rum</p>";
+            echo "<p style='background-color: whitesmoke;'>Fórum</p>";
             echo "<p style='background-color: whitesmoke;'>$forum->forum_name</p>";
-            echo "<p>Quantidade de interaÃ§Ãµes</p>";
+            echo "<p>Quantidade de interações</p>";
             echo "<p>$forum->interacoes</p>";
             echo "</div>";
             echo "</div>";
